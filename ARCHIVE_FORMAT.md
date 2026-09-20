@@ -35,6 +35,12 @@ A work file starts with YAML front matter between two `---` lines. Required fiel
 
 The Markdown body after the front matter is the complete canonical literary text. Corrections should be committed there so Git preserves the history.
 
+Single newlines within a paragraph are preserved as visible line breaks on the
+website and in PDF/EPUB downloads. Use a blank line to start a new paragraph or
+separate stanzas. Let the editor visually wrap long lines instead of inserting
+newlines solely to fit the editing window. Keep the work's title and author in
+front matter; the page and download templates display them automatically.
+
 ## Author files
 
 Author files use `id`, `name`, `birth_year`, `death_year`, `sort_name`, `photo`, and a Markdown biography body. Works refer to the author by `id`; author pages calculate their work list from that relationship, so the list is never duplicated in author files.

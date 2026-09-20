@@ -7,6 +7,10 @@ lang: "sr-Latn"
 show_admin_links: false
 repository: "ernadosmic/bh_knjizevnost"
 markdown: kramdown
+kramdown:
+  input: GFM
+  # Preserve intentional line breaks in literary texts, including verse.
+  hard_wrap: true
 permalink: pretty
 timezone: Europe/Sarajevo
 # Human-readable labels for the controlled vocabularies used by the CMS.
