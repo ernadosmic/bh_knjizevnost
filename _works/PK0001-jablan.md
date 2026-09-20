@@ -22,20 +22,35 @@ description: ""
 ---
 
 Odavno se uhvatio sumrak.
+
 Na strnjištu ispod sela u jednoj zabrdici skupio se Lujo sav pod haljinicu. Samo mu viri pjegavo lice s krupnim, grahorastim očima i nekoliko pramičaka žućkaste kose, rasute po čelu. Pred njim na nekoliko koraka pase Jablan.
+
 Svake večeri, otkada su nastale vrućine, do neko doba noći napasa Lujo svog Jablana. Pazi ga kao oči u glavi. Dva puta ga na neđelju soli. I užinu s njime polovi. Voli on Jablana – jer je Jablan najjači bak u cijeloj okolini. Lujo se ponosi. Ostale govedare i njihove bakove ponošljivo prezire. Usred groblja smio bi on noćiti kad je Jablan s njime.
+
 – Samo šjutra! – trže se Lujo kao iza sna, zbaci sa sebe haljinicu, a oči mu sijevnuše od uzbuđenja.
+
 Ustade, priđe baku, pa ga stade milovati, maziti i tepati mu:
+
 – Dobro se ti, Jabo, narucaj. Rucaj, bate, koliko ti dusa podnosi . . . Samo šjutra! Rođeni moj, mili moj, dragi moj Jabo – samo šjutra!
+
 U Lujinom promuklom glasiću drhtalo je meko, nježno preklinjanje. Bak mahnu po navici repom, pa ga uhvati malo po obrazu.
+
 – Zar mene, Jabo? – pita ga prijekorno. – Sad ću ja plakati.
+
 On se malo odmače u stranu, pa kao đoja zaplaka. Jablan diže glavu.
+
 – Nije, nije Jabo! Šalim se ja. Nijesi ti mene udario… E, nemoj se, oca mu, odma’ za svašta ljutiti! De, da se poljubimo!
+
 Poljubiše se. Lujo ogrnu haljinicu, pa se opet spusti na vlažnu travu, da sanja o sjutrašnjem danu.
+
 Sjutra će se njegov Jablan bosti s carskim bakom. U njemu već odavno bukti, plamti želja: da se Jablan i s Rudonjom pobode. Preklinjao je kneza da mu ispuni želju. I ostariji su ljudi molili kneza.
+
 – Ma, ljudi moji, nije to tako lako – carski je vo! Nego, ja ću baciti molbu. Odredi li carstvo da se bodu, dobro i jest – ne branim ni ja; ne odredi li – nije ništa ni bilo! Je li tako, braćo?
+
 – Tako je, kneže. Samo ‘ajde po redu, pa se ne boj!
+
 Molba je bačena, odgovor je knezu došao: dozvoljava se. Sjutra je Preobraženje, a ujedno i carski dan. Sjutra će se kod kneževe kuće ogledati Jablan i Rudonja.
+
 O tome Lujo budan sanja. Čas vidi kako je Jablan pao, kako uboden izdiše, čas opet kako je nadbo Rudonju, pa ponosito stoji na mejdanu. Čuje kako Jablan gromovito riče, a brda odjekuju. On doliga:
 
 Volo-lige, dolo-lige!
@@ -47,6 +62,7 @@ i u kući kućanicu
 i na struzi strugaricu…
 
 – Jabo, je li tebi studeno? – ču se Lujo ispod haljinice.
+
 Jablan pase, šuti, ništa ne odgovara. On ustade, pomilova ga, izvuče iz stoga dva snopa zobi, metnu pred baka, pa leže kraj njeg’. Poslije dugog polusanjivog, drhtavog trzanja prevari ga san. Kad Jablan pojede žito, leže i on kod svog dobrog druga.
 Duboka strahovita tišina. Vlažna svježina širi se kroz noć. Mlak vjetar poduhiva preko kuća, što se u polukružnom, neprekidnom nizu protežu ispod planine. Krovovi, obrasli mahovinom, jedva se raspoznaju, prema mjesečini, od zelenih šljivika kroz koje strše. Samo se gdje-gdje bjelaska nov krov. Selo spava mirno, slatko, kao jedro, zdravo i osorno planinče kada ga mati podoji i uljulja.
 Sunce se lagano pomaljalo iza planinskih vrhunaca, koji još umorno počivaju u prozračnom jutarnjem sumraku. Jedan trenutak – pa se sve obli u bjeličastoj svjetlosti! Sve trepti, preliva se. Samo, tamo daleko ispod planina u prisojima, treperi magličasto, timorno plavetnilo. Sve se diže, budi, sve se puši kao vruća krv, odiše snagom, svježinom.
