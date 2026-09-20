@@ -52,13 +52,25 @@
     var text = document.querySelector('.work-text');
     if (progress && text) {
         var ticking = false;
+        var last = window.scrollY;
         var update = function () {
             ticking = false;
+            var y = window.scrollY;
+
             var start = text.offsetTop;
             var span = text.offsetHeight - window.innerHeight + 120;
-            var read = window.scrollY - start + 120;
-            var ratio = span > 0 ? read / span : (window.scrollY > start ? 1 : 0);
+            var read = y - start + 120;
+            var ratio = span > 0 ? read / span : (y > start ? 1 : 0);
             progress.style.width = Math.max(0, Math.min(1, ratio)) * 100 + '%';
+
+            // Keep the settings button out of the way of the text while
+            // reading forward; bring it back the moment the reader scrolls up.
+            if (panel) {
+                var atEnd = y + window.innerHeight >= document.body.scrollHeight - 80;
+                var goingDown = y > last && y > 160;
+                panel.setAttribute('data-hidden', goingDown && !atEnd ? 'true' : 'false');
+            }
+            last = y;
         };
         var schedule = function () {
             if (ticking) return;

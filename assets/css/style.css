@@ -683,6 +683,13 @@ button:hover,
   right: max(1rem, env(safe-area-inset-right, 0px));
   bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
   z-index: 40;
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.reader[data-hidden="true"]:not([open]) {
+  opacity: 0;
+  transform: translateY(1rem);
+  pointer-events: none;
 }
 
 .reader summary {
@@ -871,7 +878,8 @@ button:hover,
     scroll-behavior: auto;
   }
 
-  .reading-progress span {
+  .reading-progress span,
+  .reader {
     transition: none;
   }
 }

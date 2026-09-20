@@ -1,11 +1,11 @@
 title: "Biblioteka književnosti"
 email: ""
 description: "Digitalni arhiv književnih djela sa trajnim, otvorenim izvorom."
-url: "https://USERNAME.github.io"
+url: "https://ernadosmic.github.io"
 baseurl: ""
 lang: "sr-Latn"
 show_admin_links: false
-repository: "USERNAME/bhknjizevnost"
+repository: "ernadosmic/bh_knjizevnost"
 markdown: kramdown
 permalink: pretty
 timezone: Europe/Sarajevo
