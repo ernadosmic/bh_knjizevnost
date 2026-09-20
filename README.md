@@ -23,13 +23,46 @@ bundle exec jekyll serve
 
 Open `http://localhost:4000/`. The GitHub Actions workflow injects the repository base path automatically for project Pages.
 
-The Decap local backend can be started from a second terminal with the Decap proxy package:
+## Adding a work
+
+The Markdown files in `_works/` and `_authors/` are the source of truth. There
+is no account to create and no service to sign into. Two ways to add content,
+both ending in a file you commit yourself.
+
+**Scaffold the file, then paste the text.** This fills in the identifiers,
+permalink and controlled vocabularies so they do not have to be copied by hand:
 
 ```powershell
+python scripts/new_work.py author --name "Isak Samokovlija" --born 1889 --died 1955
+python scripts/new_work.py work --title "Jablan" --author petar-kocic --year 1902 --type short-story
+```
+
+The work command allocates the next free archive id for that author, derives the
+slug from the title, and refuses to create a second work at a URL already in
+use. Open the new file and replace the placeholder body with the literary text.
+Run `python scripts/new_work.py work --help` for the full list of fields.
+
+**Or copy an existing file.** Duplicate any file in `_works/`, change the front
+matter, and replace the body. `ARCHIVE_FORMAT.md` documents every field.
+
+Either way, check it locally with `bundle exec jekyll serve`, then commit and
+push. The deploy workflow rebuilds the site.
+
+### Optional: the Decap editing UI, locally
+
+Decap CMS gives the same files a form interface. It runs entirely on your
+machine against your working copy, with no account and no hosted backend. From
+two terminals:
+
+```powershell
+bundle exec jekyll serve
 npx decap-server
 ```
 
-Then open `/admin/` on the local Jekyll server. The browser must be allowed to load the Decap admin script; the public archive itself has no remote runtime dependency.
+Then open `/admin/` on the local Jekyll server. Edits are written straight to
+the Markdown files, which you then commit and push as usual. The deployed copy
+of `/admin/` is inert: no OAuth provider is configured, so nobody can log in
+there.
 
 To rebuild only the generated downloads and manifest:
 

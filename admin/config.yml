@@ -1,9 +1,20 @@
+# Local-only editing. No account, no OAuth, no hosted service.
+#
+#   bundle exec jekyll serve      (terminal 1)
+#   npx decap-server              (terminal 2)
+#   open http://localhost:4000/admin/
+#
+# Decap then writes straight to the Markdown files in _works/ and _authors/.
+# You commit and push them yourself.
+#
+# The deployed copy of this page is inert: no OAuth provider is configured, so
+# nobody can log in there. Editing happens locally, or by editing the Markdown
+# files directly -- see "Adding a work" in README.md.
 local_backend: true
 
 backend:
-  name: turbo-github
-  # Replace this placeholder after creating the site in Decap Turbo.
-  turbo_site_id: REPLACE_WITH_DECAP_TURBO_SITE_ID
+  name: github
+  repo: ernadosmic/bh_knjizevnost
   branch: main
 
 media_folder: "assets/uploads"
