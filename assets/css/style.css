@@ -78,6 +78,22 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Keep the footer at the bottom of short works instead of mid-screen. */
+.site-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.site-shell > main {
+  flex: 1 0 auto;
+}
+
+.site-header,
+.site-footer {
+  flex: none;
+}
+
 img {
   max-width: 100%;
   height: auto;
@@ -384,7 +400,6 @@ button:hover,
 }
 
 .page-main {
-  min-height: 60vh;
   padding-block: clamp(2rem, 5vw, 3.25rem) clamp(3rem, 8vw, 5rem);
 }
 
@@ -610,6 +625,15 @@ button:hover,
 
 .colophon {
   border-top: 1px solid var(--line-soft);
+}
+
+/* With no downloads or sibling works above it, the work-end rule is enough. */
+.work-end > .colophon:first-child {
+  border-top: 0;
+}
+
+.work-end > .colophon:first-child summary {
+  padding-top: 0;
 }
 
 .colophon summary {
