@@ -18,10 +18,10 @@ On Windows, the simplest Ruby route is RubyInstaller with the MSYS2 toolchain. I
 bundle install
 python -m pip install -r requirements-build.txt
 python scripts/generate_downloads.py
-bundle exec jekyll serve --baseurl /bhknjizevnost
+bundle exec jekyll serve
 ```
 
-Open `http://localhost:4000/bhknjizevnost/`. To use a root URL locally, run Jekyll with `--baseurl ""`.
+Open `http://localhost:4000/`. The GitHub Actions workflow injects the repository base path automatically for project Pages.
 
 The Decap local backend can be started from a second terminal with the Decap proxy package:
 

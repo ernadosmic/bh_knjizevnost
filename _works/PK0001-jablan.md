@@ -1,5 +1,6 @@
 ---
 id: PK0001
+archive_id: PK0001
 title: "Jablan"
 slug: "jablan"
 permalink: /djela/petar-kocic/jablan/

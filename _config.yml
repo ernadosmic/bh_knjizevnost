@@ -2,7 +2,7 @@ title: "Biblioteka književnosti"
 email: ""
 description: "Digitalni arhiv književnih djela sa trajnim, otvorenim izvorom."
 url: "https://USERNAME.github.io"
-baseurl: "/bhknjizevnost"
+baseurl: ""
 lang: "sr-Latn"
 show_admin_links: false
 repository: "USERNAME/bhknjizevnost"

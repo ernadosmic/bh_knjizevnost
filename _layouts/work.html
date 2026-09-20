@@ -1,4 +1,4 @@
-{% assign author = site.authors | where: 'id', page.author | first %}{% include head.html %}
+{% assign author = site.authors | where: 'archive_id', page.author | first %}{% include head.html %}
 
 <body class="site-shell work-page" data-reader-root>
     {% include header.html %}
@@ -21,27 +21,32 @@
                 <div>
                     <dt>Vrsta</dt>
                     <dd>{{ page.type }}</dd>
-                </div>{% if page.period %}<div>
+                </div>{% if page.period != empty %}<div>
                     <dt>Period</dt>
                     <dd>{{ page.period }}</dd>
                 </div>{% endif %}<div>
                     <dt>Identifikator</dt>
-                    <dd>{{ page.id }}</dd>
+                    <dd>{{ page.archive_id }}</dd>
                 </div>
             </dl>
-            <div class="reader-toolbar" aria-label="Postavke čitanja"><span>Čitanje</span>
-                <div class="toolbar-group"><button type="button" data-reader-size="small"
+                <details class="reader-settings">
+                <summary>Postavke čitanja</summary>
+                <div class="reader-toolbar" aria-label="Postavke čitanja">
+                    <span>Veličina teksta</span>
+                    <div class="toolbar-group"><button type="button" data-reader-size="small"
                         title="Manji tekst">A−</button><button type="button" data-reader-size="default"
                         title="Uobičajena veličina">A</button><button type="button" data-reader-size="large"
                         title="Veći tekst">A+</button></div>
-                <div class="toolbar-group"><button type="button" data-reader-theme="light">Svijetlo</button><button
+                    <span>Pozadina</span>
+                    <div class="toolbar-group"><button type="button" data-reader-theme="light">Svijetlo</button><button
                         type="button" data-reader-theme="paper">Papir</button><button type="button"
                         data-reader-theme="dark">Tamno</button></div>
-            </div>
-            <div class="download-bar"><a class="button"
-                    href="{{ '/assets/downloads/pdf/' | append: page.id | append: '-' | append: page.slug | append: '.pdf' | relative_url }}">Preuzmi
+                </div>
+                </details>
+                <div class="download-bar"><a class="button"
+                    href="{{ '/assets/downloads/pdf/' | append: page.archive_id | append: '-' | append: page.slug | append: '.pdf' | relative_url }}">Preuzmi
                     PDF</a><a class="button button-secondary"
-                    href="{{ '/assets/downloads/epub/' | append: page.id | append: '-' | append: page.slug | append: '.epub' | relative_url }}">Preuzmi
+                    href="{{ '/assets/downloads/epub/' | append: page.archive_id | append: '-' | append: page.slug | append: '.epub' | relative_url }}">Preuzmi
                     EPUB</a></div>
             <div class="prose work-text">{{ content }}</div>
             <footer class="archival-note">
@@ -58,7 +63,7 @@
                     </div>{% endif %}</dl>{% else %}<p>Izvorni podaci još nisu uneseni.</p>{% endif %}<p><strong>Status
                         prava:</strong> {{ page.rights }}{% if page.rights_note %}. {{ page.rights_note }}{% endif %}
                 </p>
-                <p><strong>Trajni identifikator:</strong> {{ page.id }}</p>{% if site.show_admin_links %}<p><a
+                <p><strong>Trajni identifikator:</strong> {{ page.archive_id }}</p>{% if site.show_admin_links %}<p><a
                         href="https://github.com/{{ site.repository }}/edit/main/_works/{{ page.path | split: '/' | last }}">Uredi
                         zapis u CMS-u</a></p>{% endif %}
             </footer>
