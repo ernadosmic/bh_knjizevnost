@@ -78,6 +78,10 @@ npx pagefind --site _site
 
 The production build is reproduced by `.github/workflows/pages.yml`.
 
+To check paragraph spacing, verse preservation, and Markdown formatting in both
+renderers, run `python scripts/check_work_rendering.py` with Bundler and Pandoc
+on your PATH.
+
 ## GitHub Pages setup
 
 1. Create an empty GitHub repository under your account and add it as `origin`.

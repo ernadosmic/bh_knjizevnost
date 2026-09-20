@@ -35,11 +35,32 @@ A work file starts with YAML front matter between two `---` lines. Required fiel
 
 The Markdown body after the front matter is the complete canonical literary text. Corrections should be committed there so Git preserves the history.
 
-Single newlines within a paragraph are preserved as visible line breaks on the
-website and in PDF/EPUB downloads. Use a blank line to start a new paragraph or
-separate stanzas. Let the editor visually wrap long lines instead of inserting
-newlines solely to fit the editing window. Keep the work's title and author in
-front matter; the page and download templates display them automatically.
+In literary works, a single newline between prose passages starts a new paragraph
+on the website and in PDF/EPUB downloads. On the website, one newline gives a small
+paragraph gap (0.45 em), while two newlines (a blank line) give a larger gap
+(1.3 em). Website paragraphs have no first-line indentation. PDFs use a 1.5 em
+first-line indent without extra paragraph spacing; the opening paragraph and
+paragraphs after headings stay flush left. Let the editor visually wrap long
+lines; insert a newline only where you want a new passage. Headings, lists,
+quotations, and code keep Markdown syntax.
+
+For verse inside prose, use a fenced `verse` block so the lines stay together and
+do not receive individual paragraph indents:
+
+````markdown
+First prose passage.
+Second prose passage.
+
+```verse
+First verse line
+Second verse line
+```
+
+Next prose passage.
+````
+
+Works with `type: poetry` preserve line breaks and blank lines between stanzas
+automatically. Keep the title and author in front matter; templates display them.
 
 ## Author files
 

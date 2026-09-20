@@ -16,6 +16,7 @@ WORKS = ROOT / "_works"
 AUTHORS = ROOT / "_authors"
 PDF_DIR = ROOT / "assets" / "downloads" / "pdf"
 EPUB_DIR = ROOT / "assets" / "downloads" / "epub"
+PARAGRAPH_FILTER = ROOT / "scripts" / "work_paragraphs.lua"
 
 
 def read_document(path: Path) -> tuple[dict, str]:
@@ -28,11 +29,18 @@ def read_document(path: Path) -> tuple[dict, str]:
 
 def run_pandoc(input_path: Path, output_path: Path, metadata: dict, pdf: bool) -> None:
     command = ["pandoc", str(input_path), "--from=markdown+hard_line_breaks", "-o", str(output_path), "--standalone"]
+    command += ["--lua-filter", str(PARAGRAPH_FILTER), "--metadata", f"work-type={metadata.get('type', '')}"]
     command += ["--metadata", f"title={metadata['title']}", "--metadata", f"author={metadata['author']}"]
     if metadata.get("language"):
         command += ["--metadata", f"lang={metadata['language']}"]
     if pdf:
         command += ["--pdf-engine=xelatex", "-V", "geometry:a4paper", "-V", "mainfont=DejaVu Serif"]
+        command += [
+            "-V", "indent=true",
+            "-V", r"header-includes=\setlength{\parindent}{1.5em}\setlength{\parskip}{0pt}",
+            # Treat the title like a heading: leave the opening paragraph flush left.
+            "-V", r"include-before=\makeatletter\@afterindentfalse\@afterheading\makeatother",
+        ]
     subprocess.run(command, cwd=ROOT, check=True)
 
 
@@ -51,7 +59,7 @@ def main() -> None:
         author = author_data.get(metadata.get("author", ""), {})
         author_name = author.get("name", metadata.get("author", ""))
         filename = f"{metadata['id']}-{metadata['slug']}"
-        source_note = "\n\n---\n\n## Arhivska bilješka\n\n"
+        source_note = "\n\n---\n\n## Arhivska bilješka {.archive-note}\n\n"
         source_note += f"**Arhivski identifikator:** {metadata['id']}\n\n"
         if metadata.get("year"):
             source_note += f"**Godina:** {metadata['year']}\n\n"
@@ -62,8 +70,9 @@ def main() -> None:
             source = Path(temp_dir) / "work.md"
             # Pandoc's standalone templates render the title and author from metadata.
             source.write_text(f"{body}{source_note}", encoding="utf-8")
-            run_pandoc(source, PDF_DIR / f"{filename}.pdf", {"title": metadata["title"], "author": author_name, "language": metadata.get("language")}, True)
-            run_pandoc(source, EPUB_DIR / f"{filename}.epub", {"title": metadata["title"], "author": author_name, "language": metadata.get("language")}, False)
+            download_metadata = {"title": metadata["title"], "author": author_name, "language": metadata.get("language"), "type": metadata.get("type")}
+            run_pandoc(source, PDF_DIR / f"{filename}.pdf", download_metadata, True)
+            run_pandoc(source, EPUB_DIR / f"{filename}.epub", download_metadata, False)
         manifest.append({
             "id": metadata["id"],
             "title": metadata["title"],
