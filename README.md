@@ -47,11 +47,11 @@ The production build is reproduced by `.github/workflows/pages.yml`.
 
 ## GitHub Pages setup
 
-1. Create an empty GitHub repository named `bhknjizevnost` under your account and add it as `origin`.
-2. Replace `USERNAME` in `_config.yml` (`url` and `repository`) with your GitHub username.
-3. Keep `baseurl: "/bhknjizevnost"` for project Pages. For a custom domain, set `url` to the domain and `baseurl: ""`.
+1. Create an empty GitHub repository under your account and add it as `origin`.
+2. Set `url` and `repository` in `_config.yml` to your account and repository.
+3. Leave `baseurl: ""`. The workflow passes the correct project path to `jekyll build` via `--baseurl`, so it must not be hard-coded here. For a custom domain, set `url` to the domain.
 4. Commit and push the project to the `main` branch.
-5. In repository Settings > Pages, choose **GitHub Actions** as the source. The workflow deploys the generated site.
+5. In repository Settings > Pages, set **Source** to **GitHub Actions**. This is required: with the default "Deploy from a branch", GitHub runs its own builder in parallel, which ignores this workflow, builds without the project `--baseurl`, and serves the site without CSS.
 
 ## Decap Turbo
 
