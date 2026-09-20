@@ -1,7 +1,14 @@
 <footer class="site-footer">
-    <div class="footer-inner">
-        <p>{{ site.title }} čuva književnost u otvorenom, čitljivom formatu.</p>
-        <p><a href="{{ '/archive-manifest.json' | relative_url }}">Manifest arhiva</a> · <a
+    <div class="wrap footer-inner">
+        <p class="footer-about">{{ site.title }} — književnost u otvorenom, čitljivom formatu. <a
+                href="{{ '/archive-manifest.json' | relative_url }}">Manifest arhiva</a> · <a
                 href="https://github.com/{{ site.repository }}">Izvorni kod</a></p>
+        <div class="theme-switch">
+            <span id="theme-switch-label">Prikaz</span>
+            <div class="seg" role="group" aria-labelledby="theme-switch-label"><button type="button"
+                    data-reader-theme="light">Svijetlo</button><button type="button"
+                    data-reader-theme="paper">Papir</button><button type="button"
+                    data-reader-theme="dark">Tamno</button></div>
+        </div>
     </div>
 </footer>

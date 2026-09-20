@@ -3,8 +3,17 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>{% if page.title %}{{ page.title }} · {% endif %}{{ site.title }}</title>
     {% seo %}
     <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+    <script>
+        // Restore the reader's saved display choice before first paint.
+        try {
+            var pref = JSON.parse(localStorage.getItem('bhknj-reader') || '{}');
+            if (pref.theme) document.documentElement.setAttribute('data-reader-theme', pref.theme);
+            if (pref.size) document.documentElement.setAttribute('data-reader-size', pref.size);
+        } catch (e) { }
+    </script>
+    <script src="{{ '/assets/js/reader.js' | relative_url }}" defer></script>
 </head>

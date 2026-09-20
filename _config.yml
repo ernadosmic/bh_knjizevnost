@@ -9,6 +9,31 @@ repository: "USERNAME/bhknjizevnost"
 markdown: kramdown
 permalink: pretty
 timezone: Europe/Sarajevo
+# Human-readable labels for the controlled vocabularies used by the CMS.
+work_types:
+  short-story: "Pripovijetka"
+  novella: "Novela"
+  novel: "Roman"
+  poetry: "Poezija"
+  essay: "Esej"
+  drama: "Drama"
+  other: "Djelo"
+rights_labels:
+  public-domain: "Javno vlasništvo"
+  permission: "Objavljeno uz dozvolu"
+  restricted: "Ograničena prava"
+  unknown: "Status prava nije utvrđen"
+languages:
+  bs: "Bosanski"
+  hr: "Hrvatski"
+  sr: "Srpski"
+  de: "Njemački"
+  other: "Drugi jezik"
+scripts:
+  latin: "latinica"
+  cyrillic: "ćirilica"
+  other: ""
+
 collections:
   works:
     output: true

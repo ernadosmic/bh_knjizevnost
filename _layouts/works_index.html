@@ -2,27 +2,34 @@
 
 <body class="site-shell">
     {% include header.html %}
-    <main id="main-content" class="content-width page-main" data-works-page>
-        <section class="page-heading">
-            <p class="eyebrow">Katalog</p>
+    <main id="main-content" class="wrap page-main">
+        <header class="page-heading">
             <h1>Djela</h1>
-            <p class="lede">Sva književna djela u arhivu, sačuvana u izvornim Markdown datotekama.</p>
-        </section>
-        <div class="catalog-tools"><label for="work-filter">Filtriraj katalog<input id="work-filter" type="search"
-                    placeholder="Naslov ili autor"></label><label for="type-filter">Vrsta<select id="type-filter">
-                    <option value="">Sve vrste</option>{% assign types = site.works | map: 'type' | uniq | sort %}{% for
-                    type in types %}<option value="{{ type }}">{{ type }}</option>{% endfor %}
-                </select></label><label for="sort-works">Sortiraj<select id="sort-works">
-                    <option value="title">Naslov</option>
-                    <option value="author">Autor</option>
-                    <option value="year">Godina</option>
-                </select></label></div>
-        <div class="work-list catalog-list" id="work-list">{% assign sorted_works = site.works | sort: 'title' %}{% for
-            work in sorted_works %}{% include work-card.html work=work %}{% endfor %}</div>
+            <p class="lede">{{ site.works | size }} {% if site.works.size == 1 %}djelo u arhivu{% else %}djela u
+                arhivu{% endif %}.</p>
+        </header>
+        <div class="catalog-tools">
+            <label class="sr-only" for="work-filter">Filtriraj katalog</label>
+            <input id="work-filter" type="search" placeholder="Filtriraj po naslovu ili autoru">
+            <label class="sr-only" for="type-filter">Vrsta</label>
+            <select id="type-filter">
+                <option value="">Sve vrste</option>{% assign types = site.works | map: 'type' | uniq | sort %}{% for
+                type in types %}<option value="{{ type }}">{{ site.work_types[type] | default: type }}</option>{% endfor
+                %}
+            </select>
+            <label class="sr-only" for="sort-works">Sortiraj</label>
+            <select id="sort-works">
+                <option value="title">Po naslovu</option>
+                <option value="author">Po autoru</option>
+                <option value="year">Po godini</option>
+            </select>
+        </div>
+        <div class="work-list" id="work-list">{% assign sorted_works = site.works | sort: 'title' %}{% for work in
+            sorted_works %}{% include work-card.html work=work %}{% endfor %}</div>
         <p class="empty-state" id="work-empty" hidden>Nema djela koja odgovaraju filteru.</p>
     </main>
     {% include footer.html %}
-    <script src="{{ '/assets/js/archive.js' | relative_url }}"></script>
+    <script src="{{ '/assets/js/archive.js' | relative_url }}" defer></script>
 </body>
 
 </html>

@@ -2,22 +2,16 @@
 
 <body class="site-shell">
     {% include header.html %}
-    <main id="main-content" class="content-width page-main">
-        <nav class="breadcrumbs" aria-label="Putanja"><a href="{{ '/autori/' | relative_url }}">Autori</a><span
-                aria-hidden="true">/</span><span>{{ page.name }}</span></nav>
-        <section class="author-heading">
-            <p class="eyebrow">Autor</p>
-            <h1>{{ page.name }}</h1>{% if page.birth_year or page.death_year %}<p class="author-years">{{
-                page.birth_year }}–{{ page.death_year }}</p>{% endif %}
-        </section>{% if page.content != empty %}<div class="bio prose">{{ content }}</div>{% endif %}<section
-            class="author-works">
-            <div class="section-heading">
-                <h2>Djela autora</h2>
-            </div>
+    <main id="main-content" class="wrap page-main">
+        <header class="page-heading">
+            <h1>{{ page.name }}</h1>{% if page.birth_year or page.death_year %}<p class="lede">{{ page.birth_year }}–{{
+                page.death_year }}</p>{% endif %}
+        </header>{% if page.content != empty %}<div class="prose bio">{{ content }}</div>{% endif %}
+        <section class="author-works">
+            <h2 class="section-label">Djela</h2>
             <div class="work-list">{% assign author_works = site.works | where: 'author', page.archive_id | sort: 'year'
-                |
-                reverse %}{% for work in author_works %}{% include work-card.html work=work %}{% else %}<p>Djela ovog
-                    autora još nisu unesena.</p>{% endfor %}</div>
+                %}{% for work in author_works %}{% include work-card.html work=work %}{% else %}<p class="empty-state">
+                    Djela ovog autora još nisu unesena.</p>{% endfor %}</div>
         </section>
     </main>
     {% include footer.html %}

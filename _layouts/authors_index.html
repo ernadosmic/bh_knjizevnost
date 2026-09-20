@@ -2,17 +2,17 @@
 
 <body class="site-shell">
     {% include header.html %}
-    <main id="main-content" class="content-width page-main">
-        <section class="page-heading">
-            <p class="eyebrow">Katalog</p>
+    <main id="main-content" class="wrap page-main">
+        <header class="page-heading">
             <h1>Autori</h1>
             <p class="lede">Abecedni pregled autora zastupljenih u arhivu.</p>
-        </section>
+        </header>
         <div class="author-index">{% assign authors = site.authors | sort: 'sort_name' %}{% for author in authors %}{%
             assign author_works = site.works | where: 'author', author.archive_id %}<a class="author-row"
                 href="{{ author.url | relative_url }}"><span class="author-name">{{ author.name }}</span><span
-                    class="author-meta">{{ author_works | size }} {% if author_works.size == 1 %}djelo{% else %}djela{%
-                    endif %} <span aria-hidden="true">→</span></span></a>{% endfor %}</div>
+                    class="author-meta">{% if author.birth_year %}{{ author.birth_year }}–{{ author.death_year }} · {%
+                    endif %}{{ author_works | size }} {% if author_works.size == 1 %}djelo{% else %}djela{% endif
+                    %}</span></a>{% endfor %}</div>
     </main>
     {% include footer.html %}
 </body>
