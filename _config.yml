@@ -12,10 +12,8 @@ timezone: Europe/Sarajevo
 collections:
   works:
     output: true
-    permalink: /djela/:author/:slug/
   authors:
     output: true
-    permalink: /autori/:id/
 defaults:
   - scope:
       path: ""

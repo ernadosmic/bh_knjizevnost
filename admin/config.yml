@@ -21,21 +21,53 @@ collections:
       - { label: "Permanent ID", name: "id", widget: "string", hint: "Never change this identifier after publication." }
       - { label: "Title", name: "title", widget: "string" }
       - { label: "Slug", name: "slug", widget: "string" }
-      - { label: "Author", name: "author", widget: "relation", collection: "authors", value_field: "id", search_fields: ["name", "sort_name"], display_fields: ["name", "birth_year", "death_year"] }
+      - { label: "Public URL", name: "permalink", widget: "string", hint: "Use /djela/{author-id}/{slug}/. This can change without changing the Permanent ID." }
+      - {
+          label: "Author",
+          name: "author",
+          widget: "relation",
+          collection: "authors",
+          value_field: "id",
+          search_fields: ["name", "sort_name"],
+          display_fields: ["name", "birth_year", "death_year"],
+        }
       - { label: "Year", name: "year", widget: "number", required: false, value_type: "int" }
-      - { label: "Language", name: "language", widget: "select", options: ["bs", "hr", "sr", "de", "other"], default: "sr" }
+      - {
+          label: "Language",
+          name: "language",
+          widget: "select",
+          options: ["bs", "hr", "sr", "de", "other"],
+          default: "sr",
+        }
       - { label: "Script", name: "script", widget: "select", options: ["latin", "cyrillic", "other"], default: "latin" }
-      - { label: "Work type", name: "type", widget: "select", options: ["short-story", "novella", "novel", "poetry", "essay", "drama", "other"] }
+      - {
+          label: "Work type",
+          name: "type",
+          widget: "select",
+          options: ["short-story", "novella", "novel", "poetry", "essay", "drama", "other"],
+        }
       - { label: "Genres", name: "genres", widget: "list", required: false }
       - { label: "Literary period", name: "period", widget: "string", required: false }
       - { label: "Short description", name: "description", widget: "text", required: false }
       - { label: "Original source", name: "source", widget: "string", required: false }
       - { label: "Edition", name: "edition", widget: "string", required: false }
       - { label: "Source pages", name: "source_pages", widget: "string", required: false }
-      - { label: "Rights status", name: "rights", widget: "select", options: ["public-domain", "permission", "restricted", "unknown"], default: "unknown" }
+      - {
+          label: "Rights status",
+          name: "rights",
+          widget: "select",
+          options: ["public-domain", "permission", "restricted", "unknown"],
+          default: "unknown",
+        }
       - { label: "Rights note", name: "rights_note", widget: "text", required: false }
       - { label: "Featured", name: "featured", widget: "boolean", default: false }
-      - { label: "Full literary text", name: "body", widget: "markdown", buttons: ["bold", "italic", "link", "heading-two", "quote", "bulleted-list", "numbered-list"], modes: ["rich_text", "raw"] }
+      - {
+          label: "Full literary text",
+          name: "body",
+          widget: "markdown",
+          buttons: ["bold", "italic", "link", "heading-two", "quote", "bulleted-list", "numbered-list"],
+          modes: ["rich_text", "raw"],
+        }
   - name: "authors"
     label: "AUTHORS"
     folder: "_authors"
@@ -50,4 +82,10 @@ collections:
       - { label: "Birth year", name: "birth_year", widget: "number", required: false, value_type: "int" }
       - { label: "Death year", name: "death_year", widget: "number", required: false, value_type: "int" }
       - { label: "Photo", name: "photo", widget: "image", required: false }
-      - { label: "Biography / description", name: "body", widget: "markdown", required: false, modes: ["rich_text", "raw"] }
+      - {
+          label: "Biography / description",
+          name: "body",
+          widget: "markdown",
+          required: false,
+          modes: ["rich_text", "raw"],
+        }

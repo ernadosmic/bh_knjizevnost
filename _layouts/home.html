@@ -1,32 +1,63 @@
 {% include head.html %}
+
 <body class="site-shell home-page">
-  {% include header.html %}
-  <main id="main-content">
-    <section class="home-intro content-width">
-      <p class="eyebrow">Otvoreni digitalni arhiv</p>
-      <h1>{{ site.title }}</h1>
-      <p class="hero-copy">Književna djela sačuvana u trajnom, čitljivom formatu. Istražujte tekstove, autore i izvore bez naloga i bez praćenja.</p>
-      <form class="home-search" action="{{ '/pretraga/' | relative_url }}" method="get">
-        <label for="home-search-input">Pretražite arhiv</label>
-        <div class="search-row"><input id="home-search-input" name="q" type="search" placeholder="Naslov, autor ili riječ iz teksta"><button type="submit">Traži</button></div>
-      </form>
-    </section>
-    <section class="stats-band" aria-label="Statistika arhiva">
-      <div class="content-width stats-grid"><div><strong>{{ site.works | size }}</strong><span>djela</span></div><div><strong>{{ site.authors | size }}</strong><span>autora</span></div><div><strong>UTF-8</strong><span>otvoreni format</span></div></div>
-    </section>
-    <section class="home-sections content-width">
-      <div class="section-heading"><div><p class="eyebrow">Istražite</p><h2>Pregled arhiva</h2></div><a class="text-link" href="{{ '/djela/' | relative_url }}">Sva djela <span aria-hidden="true">→</span></a></div>
-      <div class="browse-grid">
-        <a class="browse-panel" href="{{ '/autori/' | relative_url }}"><span class="panel-index">01</span><h3>Po autoru</h3><p>Abecedni pregled književnika i književnica.</p></a>
-        <a class="browse-panel" href="{{ '/djela/' | relative_url }}#types"><span class="panel-index">02</span><h3>Po vrsti</h3><p>Pripovijetke, romani, poezija, eseji i drame.</p></a>
-        <a class="browse-panel" href="{{ '/djela/' | relative_url }}#periods"><span class="panel-index">03</span><h3>Po periodu</h3><p>Čitajte kroz vrijeme i književne epohe.</p></a>
-      </div>
-    </section>
-    <section class="home-sections content-width">
-      <div class="section-heading"><div><p class="eyebrow">Izbor iz arhiva</p><h2>Istaknuta djela</h2></div></div>
-      <div class="work-list">{% assign featured = site.works | where: 'featured', true %}{% if featured.size == 0 %}{% assign featured = site.works | slice: 0, 3 %}{% endif %}{% for work in featured %}{% include work-card.html work=work %}{% endfor %}</div>
-    </section>
-  </main>
-  {% include footer.html %}
+    {% include header.html %}
+    <main id="main-content">
+        <section class="home-intro content-width">
+            <p class="eyebrow">Otvoreni digitalni arhiv</p>
+            <h1>{{ site.title }}</h1>
+            <p class="hero-copy">Književna djela sačuvana u trajnom, čitljivom formatu. Istražujte tekstove, autore i
+                izvore bez naloga i bez praćenja.</p>
+            <form class="home-search" action="{{ '/pretraga/' | relative_url }}" method="get">
+                <label for="home-search-input">Pretražite arhiv</label>
+                <div class="search-row"><input id="home-search-input" name="q" type="search"
+                        placeholder="Naslov, autor ili riječ iz teksta"><button type="submit">Traži</button></div>
+            </form>
+        </section>
+        <section class="stats-band" aria-label="Statistika arhiva">
+            <div class="content-width stats-grid">
+                <div><strong>{{ site.works | size }}</strong><span>djela</span></div>
+                <div><strong>{{ site.authors | size }}</strong><span>autora</span></div>
+                <div><strong>UTF-8</strong><span>otvoreni format</span></div>
+            </div>
+        </section>
+        <section class="home-sections content-width">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">Istražite</p>
+                    <h2>Pregled arhiva</h2>
+                </div><a class="text-link" href="{{ '/djela/' | relative_url }}">Sva djela <span
+                        aria-hidden="true">→</span></a>
+            </div>
+            <div class="browse-grid">
+                <a class="browse-panel" href="{{ '/autori/' | relative_url }}"><span class="panel-index">01</span>
+                    <h3>Po autoru</h3>
+                    <p>Abecedni pregled književnika i književnica.</p>
+                </a>
+                <a class="browse-panel" href="{{ '/djela/' | relative_url }}#types"><span class="panel-index">02</span>
+                    <h3>Po vrsti</h3>
+                    <p>Pripovijetke, romani, poezija, eseji i drame.</p>
+                </a>
+                <a class="browse-panel" href="{{ '/djela/' | relative_url }}#periods"><span
+                        class="panel-index">03</span>
+                    <h3>Po periodu</h3>
+                    <p>Čitajte kroz vrijeme i književne epohe.</p>
+                </a>
+            </div>
+        </section>
+        <section class="home-sections content-width">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">Izbor iz arhiva</p>
+                    <h2>Istaknuta djela</h2>
+                </div>
+            </div>
+            <div class="work-list">{% assign featured = site.works | where: 'featured', true %}{% if featured.size == 0
+                %}{% assign featured = site.works | slice: 0, 3 %}{% endif %}{% for work in featured %}{% include
+                work-card.html work=work %}{% endfor %}</div>
+        </section>
+    </main>
+    {% include footer.html %}
 </body>
+
 </html>

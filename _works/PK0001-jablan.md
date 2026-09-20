@@ -2,6 +2,7 @@
 id: PK0001
 title: "Jablan"
 slug: "jablan"
+permalink: /djela/petar-kocic/jablan/
 author: "petar-kocic"
 year: 1902
 language: "sr"

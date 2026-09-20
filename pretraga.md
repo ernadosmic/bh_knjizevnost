@@ -4,6 +4,7 @@ title: "Pretraga"
 description: "Pretražite puni tekst arhiva."
 permalink: /pretraga/
 ---
+
 <section class="page-heading">
   <p class="eyebrow">Istraživanje</p>
   <h1>Pretraga arhiva</h1>
