@@ -21,7 +21,12 @@ collections:
       - { label: "Permanent ID", name: "id", widget: "string", hint: "Never change this identifier after publication." }
       - { label: "Title", name: "title", widget: "string" }
       - { label: "Slug", name: "slug", widget: "string" }
-      - { label: "Public URL", name: "permalink", widget: "string", hint: "Use /djela/{author-id}/{slug}/. This can change without changing the Permanent ID." }
+      - {
+          label: "Public URL",
+          name: "permalink",
+          widget: "string",
+          hint: "Use /djela/{author-id}/{slug}/. This can change without changing the Permanent ID.",
+        }
       - {
           label: "Author",
           name: "author",
