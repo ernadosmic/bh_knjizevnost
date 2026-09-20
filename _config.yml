@@ -1,0 +1,41 @@
+title: "Biblioteka književnosti"
+email: ""
+description: "Digitalni arhiv književnih djela sa trajnim, otvorenim izvorom."
+url: "https://USERNAME.github.io"
+baseurl: "/bhknjizevnost"
+lang: "sr-Latn"
+show_admin_links: false
+repository: "USERNAME/bhknjizevnost"
+markdown: kramdown
+permalink: pretty
+timezone: Europe/Sarajevo
+collections:
+  works:
+    output: true
+    permalink: /djela/:author/:slug/
+  authors:
+    output: true
+    permalink: /autori/:id/
+defaults:
+  - scope:
+      path: ""
+      type: "works"
+    values:
+      layout: work
+  - scope:
+      path: ""
+      type: "authors"
+    values:
+      layout: author
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - vendor
+  - scripts
+  - requirements-build.txt
+  - README.md
+  - ARCHIVE_FORMAT.md
+  - LICENSE.md
+plugins:
+  - jekyll-seo-tag
+  - jekyll-sitemap

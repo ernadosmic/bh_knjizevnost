@@ -1,0 +1,10 @@
+_site/
+.sass-cache/
+.jekyll-cache/
+.jekyll-metadata
+.bundle/
+.bundle-cache/
+assets/downloads/pdf/
+assets/downloads/epub/
+archive-manifest.json
+assets/uploads/
