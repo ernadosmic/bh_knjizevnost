@@ -18,7 +18,7 @@
                     {{ page.year }}{% endif %}</p>
             </header>
             <div class="prose work-text">{{ content }}</div>
-            <footer class="work-end">
+            <footer class="work-end" data-pagefind-ignore>
                 {% if pdf_file or epub_file %}<p class="downloads">Preuzmi: {% if pdf_file %}<a
                         href="{{ pdf_path | relative_url }}">PDF</a>{% endif %}{% if pdf_file and epub_file %} · {% endif
                     %}{% if epub_file %}<a href="{{ epub_path | relative_url }}">EPUB</a>{% endif %}</p>{% endif %}

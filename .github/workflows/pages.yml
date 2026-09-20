@@ -42,10 +42,7 @@ jobs:
       - name: Build Jekyll
         run: bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}"
       - name: Build Pagefind index
-        uses: pagefind/pagefind-action@v1
-        with:
-          site: "_site"
-          root_selector: "[data-pagefind-body]"
+        run: npx -y pagefind@1.5.2 --site _site
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
