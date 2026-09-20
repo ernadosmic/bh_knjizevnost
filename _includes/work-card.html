@@ -5,7 +5,8 @@
         <p class="card-kicker">{{ include.work.type }}{% if include.work.year %} · {{ include.work.year }}{% endif %}
         </p>
         <h3><a href="{{ include.work.url | relative_url }}">{{ include.work.title }}</a></h3>
-        <p>{% assign card_author = site.authors | where: 'archive_id', include.work.author | first %}{% if card_author %}{{
+        <p>{% assign card_author = site.authors | where: 'archive_id', include.work.author | first %}{% if card_author
+            %}{{
             card_author.name }}{% else %}{{ include.work.author }}{% endif %}</p>
     </div><a class="card-arrow" href="{{ include.work.url | relative_url }}"
         aria-label="Čitaj: {{ include.work.title }}">→</a>

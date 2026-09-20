@@ -14,7 +14,8 @@
             <div class="section-heading">
                 <h2>Djela autora</h2>
             </div>
-            <div class="work-list">{% assign author_works = site.works | where: 'author', page.archive_id | sort: 'year' |
+            <div class="work-list">{% assign author_works = site.works | where: 'author', page.archive_id | sort: 'year'
+                |
                 reverse %}{% for work in author_works %}{% include work-card.html work=work %}{% else %}<p>Djela ovog
                     autora još nisu unesena.</p>{% endfor %}</div>
         </section>

@@ -29,21 +29,21 @@
                     <dd>{{ page.archive_id }}</dd>
                 </div>
             </dl>
-                <details class="reader-settings">
+            <details class="reader-settings">
                 <summary>Postavke čitanja</summary>
                 <div class="reader-toolbar" aria-label="Postavke čitanja">
                     <span>Veličina teksta</span>
                     <div class="toolbar-group"><button type="button" data-reader-size="small"
-                        title="Manji tekst">A−</button><button type="button" data-reader-size="default"
-                        title="Uobičajena veličina">A</button><button type="button" data-reader-size="large"
-                        title="Veći tekst">A+</button></div>
+                            title="Manji tekst">A−</button><button type="button" data-reader-size="default"
+                            title="Uobičajena veličina">A</button><button type="button" data-reader-size="large"
+                            title="Veći tekst">A+</button></div>
                     <span>Pozadina</span>
                     <div class="toolbar-group"><button type="button" data-reader-theme="light">Svijetlo</button><button
-                        type="button" data-reader-theme="paper">Papir</button><button type="button"
-                        data-reader-theme="dark">Tamno</button></div>
+                            type="button" data-reader-theme="paper">Papir</button><button type="button"
+                            data-reader-theme="dark">Tamno</button></div>
                 </div>
-                </details>
-                <div class="download-bar"><a class="button"
+            </details>
+            <div class="download-bar"><a class="button"
                     href="{{ '/assets/downloads/pdf/' | append: page.archive_id | append: '-' | append: page.slug | append: '.pdf' | relative_url }}">Preuzmi
                     PDF</a><a class="button button-secondary"
                     href="{{ '/assets/downloads/epub/' | append: page.archive_id | append: '-' | append: page.slug | append: '.epub' | relative_url }}">Preuzmi

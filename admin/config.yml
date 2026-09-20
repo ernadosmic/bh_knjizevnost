@@ -19,7 +19,12 @@ collections:
     summary: "{{title}} — {{author}} ({{year}})"
     fields:
       - { label: "Permanent ID", name: "id", widget: "string", hint: "Never change this identifier after publication." }
-      - { label: "Archive display ID", name: "archive_id", widget: "string", hint: "Repeat the Permanent ID. Jekyll reserves the id property internally." }
+      - {
+          label: "Archive display ID",
+          name: "archive_id",
+          widget: "string",
+          hint: "Repeat the Permanent ID. Jekyll reserves the id property internally.",
+        }
       - { label: "Title", name: "title", widget: "string" }
       - { label: "Slug", name: "slug", widget: "string" }
       - {
@@ -83,7 +88,12 @@ collections:
     summary: "{{name}}"
     fields:
       - { label: "ID / slug", name: "id", widget: "string", hint: "Stable identifier used by works." }
-      - { label: "Archive display ID", name: "archive_id", widget: "string", hint: "Repeat the ID for archive page relationships." }
+      - {
+          label: "Archive display ID",
+          name: "archive_id",
+          widget: "string",
+          hint: "Repeat the ID for archive page relationships.",
+        }
       - { label: "Full name", name: "name", widget: "string" }
       - { label: "Sort name", name: "sort_name", widget: "string" }
       - { label: "Birth year", name: "birth_year", widget: "number", required: false, value_type: "int" }
