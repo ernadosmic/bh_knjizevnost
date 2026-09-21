@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
-"""Create missing author records referenced by work entries.
+"""Normalize author records and work references.
 
-When the CMS saves a work with a new author, admin/index.html stores the
-generated author id in `author` and the human-readable name in `author_name`.
-This script turns that metadata into a normal _authors entry.
+The CMS derives an author's slug from the current author name. If the name is
+corrected later, this script keeps the repository consistent by renaming the
+author file, updating its IDs and permalink, and updating every work that
+references the old author slug.
 
-Existing author files are never overwritten.
+It also creates a missing author record when a work was saved with `author_name`.
+Existing unrelated author records are never overwritten.
 """
 
+import re
 from pathlib import Path
 
 import yaml
@@ -19,16 +22,20 @@ WORKS = ROOT / "_works"
 AUTHORS = ROOT / "_authors"
 
 
-def read_front_matter(path):
+def split_document(path):
     text = path.read_text(encoding="utf-8")
     if not text.startswith("---\n"):
-        return {}
+        return {}, "", text
     try:
-        _, raw, _ = text.split("---", 2)
+        _, raw, body = text.split("---", 2)
     except ValueError:
-        return {}
+        return {}, "", text
     data = yaml.safe_load(raw) or {}
-    return data if isinstance(data, dict) else {}
+    return (data if isinstance(data, dict) else {}), raw, body
+
+
+def read_front_matter(path):
+    return split_document(path)[0]
 
 
 def sort_name(full_name):
@@ -38,17 +45,46 @@ def sort_name(full_name):
     return "%s, %s" % (parts[-1], " ".join(parts[:-1]))
 
 
+def rewrite_front_matter(path, updates):
+    data, raw, body = split_document(path)
+    if not raw:
+        raise ValueError("No YAML front matter in %s" % path.relative_to(ROOT))
+
+    rendered = {key: yaml_quote(value) for key, value in updates.items()}
+    output = []
+    seen = set()
+
+    for line in raw.strip("\n").splitlines():
+        match = re.match(r"^([A-Za-z0-9_]+):", line)
+        key = match.group(1) if match else None
+        if key in rendered:
+            output.append("%s: %s" % (key, rendered[key]))
+            seen.add(key)
+        else:
+            output.append(line)
+
+    for key, value in rendered.items():
+        if key not in seen:
+            output.append("%s: %s" % (key, value))
+
+    path.write_text(
+        "---\n" + "\n".join(output) + "\n---" + body,
+        encoding="utf-8",
+        newline="\n",
+    )
+
+
 def create_author(author_id, name):
     path = AUTHORS / ("%s.md" % author_id)
     if path.exists():
-        return False
+        return path
 
     lines = [
         "---",
         "layout: author",
         "id: %s" % yaml_quote(author_id),
         "archive_id: %s" % yaml_quote(author_id),
-        "permalink: /autori/%s/" % author_id,
+        "permalink: %s" % yaml_quote("/autori/%s/" % author_id),
         "name: %s" % yaml_quote(name),
         'birth_year: ""',
         'death_year: ""',
@@ -59,45 +95,128 @@ def create_author(author_id, name):
     ]
     path.write_text("\n".join(lines), encoding="utf-8", newline="\n")
     print("Created %s" % path.relative_to(ROOT))
-    return True
+    return path
 
 
-def main():
-    AUTHORS.mkdir(parents=True, exist_ok=True)
-    unresolved = []
+def normalize_authors():
+    aliases = {}
+    canonical_names = {}
+    problems = []
+
+    for original_path in sorted(AUTHORS.glob("*.md")):
+        data = read_front_matter(original_path)
+        name = str(data.get("name") or "").strip()
+        if not name:
+            problems.append("%s: missing author name" % original_path.name)
+            continue
+
+        desired_id = slugify(name)
+        if not desired_id:
+            problems.append("%s: could not derive author slug" % original_path.name)
+            continue
+
+        old_ids = {
+            original_path.stem,
+            str(data.get("id") or "").strip(),
+            str(data.get("archive_id") or "").strip(),
+        }
+        old_ids.discard("")
+
+        target_path = AUTHORS / ("%s.md" % desired_id)
+        if target_path.exists() and target_path != original_path:
+            problems.append(
+                "%s: cannot rename to %s because that author file already exists"
+                % (original_path.name, target_path.name)
+            )
+            continue
+
+        rewrite_front_matter(
+            original_path,
+            {
+                "id": desired_id,
+                "archive_id": desired_id,
+                "permalink": "/autori/%s/" % desired_id,
+                "sort_name": sort_name(name),
+            },
+        )
+
+        current_path = original_path
+        if target_path != original_path:
+            original_path.rename(target_path)
+            current_path = target_path
+            print(
+                "Renamed %s -> %s"
+                % (original_path.relative_to(ROOT), target_path.relative_to(ROOT))
+            )
+
+        for old_id in old_ids | {desired_id}:
+            aliases[old_id] = desired_id
+        canonical_names[desired_id] = name
+
+    return aliases, canonical_names, problems
+
+
+def normalize_works(aliases, canonical_names):
+    problems = []
 
     for work_path in sorted(WORKS.glob("*.md")):
         data = read_front_matter(work_path)
         author_id = str(data.get("author") or "").strip()
-        if not author_id:
-            unresolved.append("%s: missing author id" % work_path.name)
-            continue
-
-        author_path = AUTHORS / ("%s.md" % author_id)
-        if author_path.exists():
-            continue
-
         author_name = str(data.get("author_name") or "").strip()
-        if not author_name:
-            unresolved.append(
-                "%s: author %s does not exist and author_name is empty"
-                % (work_path.name, author_id)
-            )
+
+        if author_id in aliases:
+            desired_id = aliases[author_id]
+            canonical_name = canonical_names.get(desired_id, author_name)
+        elif author_id and (AUTHORS / ("%s.md" % author_id)).exists():
+            desired_id = author_id
+            author_data = read_front_matter(AUTHORS / ("%s.md" % author_id))
+            canonical_name = str(author_data.get("name") or author_name).strip()
+        elif author_name:
+            desired_id = slugify(author_name)
+            if not desired_id:
+                problems.append("%s: could not derive author slug" % work_path.name)
+                continue
+            create_author(desired_id, author_name)
+            aliases[author_id or desired_id] = desired_id
+            aliases[desired_id] = desired_id
+            canonical_names[desired_id] = author_name
+            canonical_name = author_name
+        else:
+            problems.append("%s: missing resolvable author" % work_path.name)
             continue
 
-        expected_id = slugify(author_name)
-        if expected_id != author_id:
-            unresolved.append(
-                "%s: author id %s does not match generated id %s"
-                % (work_path.name, author_id, expected_id)
-            )
+        slug = str(data.get("slug") or "").strip()
+        if not slug:
+            slug = slugify(str(data.get("title") or ""))
+        if not slug:
+            problems.append("%s: missing work slug" % work_path.name)
             continue
 
-        create_author(author_id, author_name)
+        updates = {
+            "author": desired_id,
+            "author_name": canonical_name,
+            "permalink": "/djela/%s/%s/" % (desired_id, slug),
+        }
 
-    if unresolved:
+        if (
+            author_id != desired_id
+            or author_name != canonical_name
+            or str(data.get("permalink") or "").strip() != updates["permalink"]
+        ):
+            rewrite_front_matter(work_path, updates)
+            print("Updated %s" % work_path.relative_to(ROOT))
+
+    return problems
+
+
+def main():
+    AUTHORS.mkdir(parents=True, exist_ok=True)
+    aliases, canonical_names, problems = normalize_authors()
+    problems.extend(normalize_works(aliases, canonical_names))
+
+    if problems:
         print("\nUnresolved author references:")
-        for issue in unresolved:
+        for issue in problems:
             print("- %s" % issue)
         raise SystemExit(1)
 

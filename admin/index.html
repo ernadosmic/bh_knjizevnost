@@ -6,6 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex, nofollow">
     <title>Biblioteka književnosti · Administracija</title>
+    <style>
+        @media (max-width: 900px) {
+            input,
+            textarea,
+            select,
+            [contenteditable="true"] {
+                font-size: 16px !important;
+            }
+        }
+    </style>
     <script>window.CMS_MANUAL_INIT = true;</script>
 </head>
 
@@ -90,20 +100,14 @@
 
                 if (data.has("name")) {
                     const name = clean(data.get("name"));
-                    let id = clean(data.get("id"));
-                    let orderName = clean(data.get("sort_name"));
+                    const id = slugify(name);
+                    const orderName = sortName(name);
 
                     if (!name) {
                         throw new Error("Unesi ime i prezime autora.");
                     }
                     if (!id) {
-                        id = slugify(name);
-                    }
-                    if (!id) {
                         throw new Error("ID autora nije moguće generirati iz imena.");
-                    }
-                    if (!orderName) {
-                        orderName = sortName(name);
                     }
 
                     return data
