@@ -5,7 +5,7 @@ title: Plaćenik
 slug: placenik
 permalink: /djela/placenik/
 author: dervis-susic
-year: 1964
+year: 1966
 language: bs
 script: latin
 type: short-story
