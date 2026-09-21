@@ -1,11 +1,11 @@
 ---
-layout: author
-id: "antun-branko-sinic"
-archive_id: "antun-branko-sinic"
-permalink: /autori/antun-branko-sinic/
-name: "Antun Branko Šinić"
-birth_year: ""
 death_year: ""
-sort_name: "Šinić, Antun Branko"
+layout: author
+id: antun-branko-sinic
+archive_id: antun-branko-sinic
+name: Antun Branko Šimić
+permalink: /autori/antun-branko-sinic/
+sort_name: Šimić, Antun Branko
+birth_year: ""
 photo: ""
 ---
