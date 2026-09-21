@@ -3,9 +3,10 @@ id: ABS0001
 archive_id: ABS0001
 title: Opomena
 slug: opomena
-permalink: "/djela/antun-branko-simic/opomena/"
-author: "antun-branko-simic"
-author_name: "Antun Branko Šimić"
+permalink: /djela/antun-branko-simic/opomena/
+author: antun-branko-simic
+author_name: Antun Branko Šimić
+year: 1920
 language: hr
 script: latin
 type: poetry
