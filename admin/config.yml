@@ -51,6 +51,12 @@ collections:
     editor:
       preview: false
     fields:
+      - label: "Uvezi Markdown (.md)"
+        name: "import_md"
+        widget: "import-md"
+        import_kind: "work"
+        required: false
+        hint: "Opcionalno. Odaberi postojeću .md datoteku; front matter i tekst će biti uvezeni pri spremanju."
       - label: "Trajni ID"
         name: "id"
         widget: "string"
@@ -214,6 +220,12 @@ collections:
     editor:
       preview: false
     fields:
+      - label: "Uvezi Markdown (.md)"
+        name: "import_md"
+        widget: "import-md"
+        import_kind: "author"
+        required: false
+        hint: "Opcionalno. Odaberi postojeću .md datoteku sa podacima o autoru i biografijom."
       - { label: "ID", name: "id", widget: "hidden", default: "" }
       - { label: "Arhivski ID", name: "archive_id", widget: "hidden", default: "" }
       - { label: "Ime i prezime", name: "name", widget: "string" }

@@ -315,3 +315,128 @@
     padding: 16px;
   }
 }
+
+
+/* ---------- Markdown import ---------- */
+
+.md-import-panel {
+  width: 100%;
+  padding: 16px;
+  border: 2px dashed #c9ced6;
+  border-radius: 7px;
+  background: #f8f9fa;
+  box-sizing: border-box;
+  transition: border-color 120ms ease, background 120ms ease;
+}
+
+.md-import-dragging {
+  border-color: #3a69c7;
+  background: #eef4ff;
+}
+
+.md-import-disabled {
+  border-style: solid;
+  color: #6b7280;
+}
+
+.md-import-panel > p {
+  margin: 0;
+}
+
+.md-import-button {
+  display: inline-block;
+  padding: 11px 15px;
+  border-radius: 5px;
+  background: #263f3b;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.md-import-button:hover,
+.md-import-button:focus-within {
+  background: #1f3431;
+}
+
+.md-import-button input {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.md-import-drop-note {
+  margin-left: 10px;
+  color: #6b7280;
+}
+
+.md-import-summary {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid #d9dde3;
+}
+
+.md-import-summary > strong {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.md-import-summary dl {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 5px 12px;
+  margin: 12px 0;
+}
+
+.md-import-summary dt {
+  font-weight: 700;
+  color: #6b7280;
+}
+
+.md-import-summary dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.md-import-summary p {
+  margin: 12px 0;
+  line-height: 1.45;
+  color: #5c6370;
+}
+
+.md-import-clear {
+  border: 1px solid #c9ced6;
+  border-radius: 4px;
+  padding: 8px 11px;
+  background: #fff;
+  color: #313d3e;
+  cursor: pointer;
+}
+
+.md-import-error {
+  margin-top: 12px !important;
+  color: #c92a2a;
+  font-weight: 600;
+}
+
+@media (max-width: 799px) {
+  .md-import-drop-note {
+    display: none;
+  }
+
+  .md-import-button {
+    width: 100%;
+    text-align: center;
+    box-sizing: border-box;
+  }
+
+  .md-import-summary dl {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+
+  .md-import-summary dd {
+    margin-bottom: 7px;
+  }
+}

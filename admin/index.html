@@ -6,12 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="robots" content="noindex, nofollow">
     <title>Biblioteka književnosti · Administracija</title>
-    <link rel="stylesheet" href="./mobile-overrides.css?v=6">
+    <link rel="stylesheet" href="./mobile-overrides.css?v=7">
     <script>window.CMS_MANUAL_INIT = true;</script>
 </head>
 
 <body>
     <script src="https://unpkg.com/decap-cms@3.17.0-beta.0/dist/decap-cms.js"></script>
+    <script src="https://unpkg.com/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+    <script src="./import-md.js"></script>
     <script src="./collection-works.js"></script>
     <script src="./site-publish.js"></script>
     <script>
@@ -45,11 +47,119 @@
             return `${parts[parts.length - 1]}, ${parts.slice(0, -1).join(" ")}`;
         }
 
+        function importedWorkId(filename) {
+            const base = clean(filename).replace(/\.(md|markdown)$/i, "");
+            const match = base.match(/^([a-z]{1,10}\d{2,10})(?:[-_].*)?$/i);
+            return match ? match[1].toUpperCase() : "";
+        }
+
+        function applyScalarFields(data, frontmatter, fields) {
+            fields.forEach((field) => {
+                if (
+                    Object.prototype.hasOwnProperty.call(frontmatter, field) &&
+                    frontmatter[field] !== null &&
+                    frontmatter[field] !== undefined
+                ) {
+                    data = data.set(field, frontmatter[field]);
+                }
+            });
+            return data;
+        }
+
+        function applyMarkdownImport(data, collectionName) {
+            const raw = clean(data.get("import_md"));
+            data = data.delete("import_md");
+
+            if (!raw || !["works", "authors"].includes(collectionName)) {
+                return data;
+            }
+
+            let payload;
+            try {
+                payload = JSON.parse(raw);
+            } catch (_) {
+                throw new Error("Uvezena Markdown datoteka nije ispravna. Odaberi je ponovo.");
+            }
+
+            const fm = payload.frontmatter || {};
+            const body = typeof payload.body === "string" ? payload.body : "";
+
+            if (collectionName === "works") {
+                data = applyScalarFields(data, fm, [
+                    "title",
+                    "year",
+                    "language",
+                    "script",
+                    "type",
+                    "zbirka",
+                    "zbirka_order",
+                    "period",
+                    "description",
+                    "source",
+                    "edition",
+                    "source_pages",
+                    "rights",
+                    "rights_note",
+                    "featured",
+                ]);
+
+                const importedId = clean(fm.id || fm.archive_id || importedWorkId(payload.filename));
+                if (importedId) data = data.set("id", importedId);
+
+                let importedAuthor = clean(fm.author);
+                let importedAuthorName = clean(fm.author_name || fm.new_author);
+
+                if (importedAuthor && /\s/.test(importedAuthor) && !importedAuthorName) {
+                    importedAuthorName = importedAuthor;
+                    importedAuthor = slugify(importedAuthor);
+                }
+                if (!importedAuthor && importedAuthorName) {
+                    importedAuthor = slugify(importedAuthorName);
+                }
+
+                if (importedAuthor) data = data.set("author", importedAuthor);
+                if (importedAuthorName) data = data.set("author_name", importedAuthorName);
+
+                if (Array.isArray(fm.genres)) {
+                    data = data.set("genres", fm.genres);
+                }
+
+                data = data
+                    .set("body", body)
+                    .set("slug", "")
+                    .set("permalink", "")
+                    .set("archive_id", "");
+
+                return data;
+            }
+
+            if (collectionName === "authors") {
+                const importedName = clean(fm.name || fm.title);
+                if (importedName) data = data.set("name", importedName);
+
+                data = applyScalarFields(data, fm, [
+                    "birth_year",
+                    "death_year",
+                    "photo",
+                ]);
+
+                return data
+                    .set("body", body)
+                    .set("id", "")
+                    .set("archive_id", "")
+                    .set("sort_name", "")
+                    .set("permalink", "");
+            }
+
+            return data;
+        }
+
         CMS.registerEventListener({
             name: "preSave",
             handler: ({ entry, collection }) => {
                 let data = entry.get("data");
                 const collectionName = collection && collection.get("name");
+                data = applyMarkdownImport(data, collectionName);
 
                 if (collectionName === "works") {
                     const title = clean(data.get("title"));
