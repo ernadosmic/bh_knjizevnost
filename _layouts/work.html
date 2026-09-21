@@ -1,5 +1,6 @@
 {% assign author = site.authors | where: 'archive_id', page.author | first %}
 {% assign type_label = site.work_types[page.type] | default: page.type %}
+{% assign zbirka = site.zbirke | where: 'id', page.zbirka | first %}
 {% assign pdf_path = '/assets/downloads/pdf/' | append: page.archive_id | append: '-' | append: page.slug | append: '.pdf' %}
 {% assign epub_path = '/assets/downloads/epub/' | append: page.archive_id | append: '-' | append: page.slug | append: '.epub' %}
 {% assign pdf_file = site.static_files | where: 'path', pdf_path | first %}
@@ -15,7 +16,7 @@
                 <h1>{{ page.title }}</h1>
                 <p class="byline">{% if author %}<a href="{{ author.url | relative_url }}">{{ author.name }}</a>{% else
                     %}{{ page.author }}{% endif %}{% if type_label %} · {{ type_label }}{% endif %}{% if page.year %} ·
-                    {{ page.year }}{% endif %}</p>
+                    {{ page.year }}{% endif %}</p>{% if zbirka %}<p class="byline">Iz zbirke: <a href="{{ zbirka.url | relative_url }}">{{ zbirka.title }}</a>{% if page.zbirka_order %} · {{ page.zbirka_order }}. u zbirci{% endif %}</p>{% endif %}
             </header>
             <div class="prose work-text">{{ page.rendered_work }}</div>
             <footer class="work-end" data-pagefind-ignore>
@@ -41,7 +42,10 @@
                             <div>
                                 <dt>Vrsta</dt>
                                 <dd>{{ type_label }}</dd>
-                            </div>{% if page.period != empty %}<div>
+                            </div>{% if zbirka %}<div>
+                                <dt>Zbirka</dt>
+                                <dd><a href="{{ zbirka.url | relative_url }}">{{ zbirka.title }}</a>{% if page.zbirka_order %}, redni broj {{ page.zbirka_order }}{% endif %}</dd>
+                            </div>{% endif %}{% if page.period != empty %}<div>
                                 <dt>Period</dt>
                                 <dd>{{ page.period }}</dd>
                             </div>{% endif %}{% if page.source != empty %}<div>
