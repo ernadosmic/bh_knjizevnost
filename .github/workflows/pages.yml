@@ -36,10 +36,12 @@ jobs:
       - name: Install XeLaTeX and build tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y texlive-xetex
+          sudo apt-get install -y texlive-xetex poppler-utils
           python3 -m pip install -r requirements-build.txt
       - name: Check literary text rendering
         run: python3 scripts/check_work_rendering.py
+      - name: Check PDF spacing and line numbers
+        run: python3 scripts/check_pdf_rendering.py
       - name: Generate downloads and manifest
         run: python3 scripts/generate_downloads.py
       - name: Setup Pages

@@ -82,6 +82,10 @@ To check paragraph spacing, verse preservation, and Markdown formatting in both
 renderers, run `python scripts/check_work_rendering.py` with Bundler and Pandoc
 on your PATH.
 
+To check the generated PDF's actual spacing and line numbers across pages, run
+`python scripts/check_pdf_rendering.py` with Pandoc, XeLaTeX, and `pdftotext`
+(Poppler) on your PATH. Both rendering checks run in the deployment workflow.
+
 ## GitHub Pages setup
 
 1. Create an empty GitHub repository under your account and add it as `origin`.

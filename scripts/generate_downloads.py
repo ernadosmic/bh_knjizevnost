@@ -37,9 +37,11 @@ def run_pandoc(input_path: Path, output_path: Path, metadata: dict, pdf: bool) -
         command += ["--pdf-engine=xelatex", "-V", "geometry:a4paper", "-V", "mainfont=DejaVu Serif"]
         command += [
             "-V", "indent=true",
-            "-V", r"header-includes=\usepackage{lineno}\modulolinenumbers[5]\leftlinenumbers\renewcommand{\linenumberfont}{\normalfont\tiny\color[gray]{0.55}}\setlength{\linenumbersep}{1em}\setlength{\parindent}{1.5em}\setlength{\parskip}{0pt}",
-            # Treat the title like a heading: leave the opening paragraph flush left.
-            "-V", r"include-before=\makeatletter\@afterindentfalse\@afterheading\makeatother",
+            # Hard line breaks stay within a paragraph; only blank source lines
+            # start a new paragraph and receive this extra vertical space.
+            "-V", r"header-includes=\usepackage{lineno}\modulolinenumbers[5]\leftlinenumbers\renewcommand{\linenumberfont}{\normalfont\tiny\color[gray]{0.55}}\setlength{\linenumbersep}{1em}\setlength{\parindent}{1.5em}\setlength{\parskip}{1.3em}",
+            # Start counting after the title; leave the opening paragraph flush left.
+            "-V", r"include-before=\linenumbers\makeatletter\@afterindentfalse\@afterheading\makeatother",
         ]
     subprocess.run(command, cwd=ROOT, check=True)
 
