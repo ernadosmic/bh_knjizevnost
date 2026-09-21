@@ -1,6 +1,6 @@
 name: Publish site
 
-run-name: Publish site — ${{ inputs.scope == 'all' && 'all saved drafts' || 'ready entries' }}
+run-name: Publish site
 
 on:
   workflow_dispatch:
@@ -13,6 +13,11 @@ on:
         options:
           - ready
           - all
+  push:
+    branches:
+      - "cms/release/publish-site"
+    paths:
+      - "admin/release.yml"
 
 permissions:
   contents: write
@@ -27,11 +32,40 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
+      - name: Read CMS release request
+        if: github.event_name == 'push'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+
+      - name: Resolve release scope
+        id: scope
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          MANUAL_SCOPE: ${{ inputs.scope }}
+        run: |
+          set -euo pipefail
+
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            SCOPE="$MANUAL_SCOPE"
+          else
+            SCOPE="$(awk -F': *' '/^scope:/ { gsub(/["'\'' ]/, "", $2); print $2; exit }' admin/release.yml)"
+            SCOPE="${SCOPE:-all}"
+          fi
+
+          case "$SCOPE" in
+            ready|all) ;;
+            *) echo "Invalid release scope: $SCOPE" >&2; exit 1 ;;
+          esac
+
+          echo "scope=$SCOPE" >> "$GITHUB_OUTPUT"
+
       - name: Find CMS entries for this release
         id: drafts
         env:
           GH_TOKEN: ${{ github.token }}
-          SCOPE: ${{ inputs.scope }}
+          SCOPE: ${{ steps.scope.outputs.scope }}
+          TRIGGER_HEAD: ${{ github.event_name == 'push' && github.ref_name || '' }}
         run: |
           set -euo pipefail
 
@@ -44,16 +78,18 @@ jobs:
             > /tmp/cms-prs.json
 
           if [ "$SCOPE" = "all" ]; then
-            jq -r '
+            jq -r --arg trigger "$TRIGGER_HEAD" '
               .[]
               | select(.headRefName | startswith("cms/"))
+              | select(.headRefName != $trigger)
               | [.number, .title]
               | @tsv
             ' /tmp/cms-prs.json > /tmp/release-prs.tsv
           else
-            jq -r '
+            jq -r --arg trigger "$TRIGGER_HEAD" '
               .[]
               | select(.headRefName | startswith("cms/"))
+              | select(.headRefName != $trigger)
               | select(any(.labels[]?; .name == "decap-cms/pending_publish"))
               | [.number, .title]
               | @tsv
@@ -93,15 +129,47 @@ jobs:
             --repo "$GITHUB_REPOSITORY" \
             --ref main
 
+      - name: Close temporary CMS release request
+        if: always() && github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TRIGGER_HEAD: ${{ github.ref_name }}
+        run: |
+          set +e
+
+          for attempt in 1 2 3 4 5; do
+            PR="$(gh pr list \
+              --repo "$GITHUB_REPOSITORY" \
+              --state open \
+              --head "$TRIGGER_HEAD" \
+              --json number \
+              --jq '.[0].number // empty')"
+
+            if [ -n "$PR" ]; then
+              gh pr close "$PR" \
+                --repo "$GITHUB_REPOSITORY" \
+                --delete-branch
+              exit 0
+            fi
+
+            sleep 2
+          done
+
+          gh api \
+            --method DELETE \
+            "repos/$GITHUB_REPOSITORY/git/refs/heads/${TRIGGER_HEAD//\//%2F}" \
+            >/dev/null 2>&1 || true
+
       - name: Release summary
+        if: always()
         env:
           COUNT: ${{ steps.drafts.outputs.count }}
-          SCOPE: ${{ inputs.scope }}
+          SCOPE: ${{ steps.scope.outputs.scope }}
         run: |
           {
-            echo "## Site release started"
+            echo "## Site release"
             echo
-            echo "- CMS entries merged: $COUNT"
-            echo "- Scope: $SCOPE"
-            echo "- One Pages deployment was requested after all selected entries were merged."
+            echo "- CMS entries selected: ${COUNT:-0}"
+            echo "- Scope: ${SCOPE:-unknown}"
+            echo "- One Pages deployment was requested after the selected entries were merged."
           } >> "$GITHUB_STEP_SUMMARY"
