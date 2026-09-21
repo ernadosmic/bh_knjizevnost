@@ -22,6 +22,11 @@ work_types:
   essay: "Esej"
   drama: "Drama"
   other: "Djelo"
+zbirka_types:
+  story-collection: "Zbirka pripovjedaka"
+  poetry-collection: "Zbirka pjesama"
+  mixed-collection: "Mješovita zbirka"
+  other-collection: "Druga zbirka"
 rights_labels:
   public-domain: "Javno vlasništvo"
   permission: "Objavljeno uz dozvolu"
@@ -43,6 +48,8 @@ collections:
     output: true
   authors:
     output: true
+  zbirke:
+    output: true
 defaults:
   - scope:
       path: ""
@@ -54,6 +61,11 @@ defaults:
       type: "authors"
     values:
       layout: author
+  - scope:
+      path: ""
+      type: "zbirke"
+    values:
+      layout: zbirka
 exclude:
   - Gemfile
   - Gemfile.lock
