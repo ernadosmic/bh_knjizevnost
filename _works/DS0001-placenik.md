@@ -1,24 +1,24 @@
 ---
 id: DS0001
 archive_id: DS0001
-title: "Plaćenik"
-slug: "placenik"
+title: Plaćenik
+slug: placenik
 permalink: /djela/placenik/
-author: "dervis-susic"
-year: ""
-language: "bs"
-script: "latin"
-type: ""
+author: dervis-susic
+year: 1964
+language: bs
+script: latin
+type: short-story
 genres:
   - pripovijetka
 period: ""
+description: ""
 source: ""
 edition: ""
 source_pages: ""
-rights: ""
+rights: public-domain
 rights_note: ""
 featured: false
-description: ""
 ---
 
 Bi ružno proljeće.

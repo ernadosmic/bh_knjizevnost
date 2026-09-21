@@ -25,9 +25,12 @@ Open `http://localhost:4000/`. The GitHub Actions workflow injects the repositor
 
 ## Adding a work
 
-The Markdown files in `_works/` and `_authors/` are the source of truth. There
-is no account to create and no service to sign into. Two ways to add content,
-both ending in a file you commit yourself.
+The Markdown files in `_works/` and `_authors/` are the source of truth. Once
+online login is connected (see below), use the `/admin/` dashboard to add and
+edit works and authors. Publishing saves a commit to `main`; GitHub Actions
+then rebuilds the website and PDF/EPUB downloads.
+
+You can also edit locally without an account:
 
 **Scaffold the file, then paste the text.** This fills in the identifiers,
 permalink and controlled vocabularies so they do not have to be copied by hand:
@@ -60,9 +63,8 @@ npx decap-server
 ```
 
 Then open `/admin/` on the local Jekyll server. Edits are written straight to
-the Markdown files, which you then commit and push as usual. The deployed copy
-of `/admin/` is inert: no OAuth provider is configured, so nobody can log in
-there.
+the Markdown files, which you then commit and push as usual. Online editing uses
+the separate Turbo login described below.
 
 To rebuild only the generated downloads and manifest:
 
@@ -94,9 +96,36 @@ To check the generated PDF's actual spacing and line numbers across pages, run
 4. Commit and push the project to the `main` branch.
 5. In repository Settings > Pages, set **Source** to **GitHub Actions**. This is required: with the default "Deploy from a branch", GitHub runs its own builder in parallel, which ignores this workflow, builds without the project `--baseurl`, and serves the site without CSS.
 
-## Decap Turbo
+## Online admin dashboard
 
-Create a site at Decap Turbo, copy its site ID, and replace `REPLACE_WITH_DECAP_TURBO_SITE_ID` in `admin/config.yml`. Do not put a GitHub token or secret in this repository. Commit that public site ID, push to `main`, then open `/admin/` on the deployed site and complete the Turbo GitHub authorization flow.
+The dashboard is at https://ernadosmic.github.io/bh_knjizevnost/admin/.
+`admin/config.yml` contains the connected site's public Site ID. Online login
+becomes available after the admin configuration is deployed. The following
+steps document the setup if the site ever needs to be reconnected.
+
+1. Create an account at https://turbo.decapcms.org and an organization on the
+   Free plan (one site and one editor).
+2. In **Git connection**, install the Turbo GitHub App with access to only
+   `ernadosmic/bh_knjizevnost`.
+3. Create a site with repository `ernadosmic/bh_knjizevnost`, branch `main`,
+   config path `admin/config.yml`, and admin interface URL
+   `https://ernadosmic.github.io/bh_knjizevnost/admin/`.
+4. Copy the **Site ID** from the site's Overview tab into `turbo_site_id` in
+   `admin/config.yml`. This ID is public; no password or GitHub secret belongs
+   in the repository.
+5. Commit and push the configuration, wait for the Pages deployment to finish,
+   then open the dashboard and select **Login with Turbo**.
+
+Choose **WORKS** to edit an existing entry or create a new one, and **AUTHORS**
+to manage authors. Keep Permanent ID and Archive display ID identical. Choose
+an existing author for each work; create the author first when necessary.
+For precise literary line breaks, use the Markdown editor's **Raw** mode.
+Publishing updates the source files; PDF links update after the build completes.
+
+Turbo currently requires the beta CMS release. `admin/index.html` pins
+`3.17.0-beta.0` rather than following a moving beta tag. Setup references:
+[getting started](https://decapcms.org/docs/turbo-getting-started/) and
+[connecting a site](https://decapcms.org/docs/turbo-connecting-a-site/).
 
 ## Durable archive principle
 

@@ -1,19 +1,13 @@
-# Local-only editing. No account, no OAuth, no hosted service.
-#
-#   bundle exec jekyll serve      (terminal 1)
-#   npx decap-server              (terminal 2)
-#   open http://localhost:4000/admin/
-#
-# Decap then writes straight to the Markdown files in _works/ and _authors/.
-# You commit and push them yourself.
-#
-# The deployed copy of this page is inert: no OAuth provider is configured, so
-# nobody can log in there. Editing happens locally, or by editing the Markdown
-# files directly -- see "Adding a work" in README.md.
+# Online editing uses the connected Decap Turbo site. Account setup is described
+# in README.md; the Site ID below is public.
+# Local editing remains available with Jekyll and npx decap-server.
 local_backend: true
 
 backend:
-  name: github
+  name: turbo-github
+  turbo_site_id: "16cbca0d-a43c-4c0e-a6da-a1a711f14f10"
+  # Turbo uses the repository selected in its dashboard. This value also lets
+  # the local editing proxy identify the repository.
   repo: ernadosmic/bh_knjizevnost
   branch: main
 
@@ -106,6 +100,12 @@ collections:
           hint: "Repeat the ID for archive page relationships.",
         }
       - { label: "Full name", name: "name", widget: "string" }
+      - {
+          label: "Public URL",
+          name: "permalink",
+          widget: "string",
+          hint: "Use /autori/{id}/, for example /autori/dervis-susic/.",
+        }
       - { label: "Sort name", name: "sort_name", widget: "string" }
       - { label: "Birth year", name: "birth_year", widget: "number", required: false, value_type: "int" }
       - { label: "Death year", name: "death_year", widget: "number", required: false, value_type: "int" }
