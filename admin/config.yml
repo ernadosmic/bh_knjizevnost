@@ -27,6 +27,8 @@ collections:
     identifier_field: "title"
     summary: "{{title}} — {{author}} ({{year}})"
     sortable_fields: ["title", "year", "author"]
+    editor:
+      preview: false
     fields:
       - label: "Trajni ID"
         name: "id"
@@ -120,16 +122,14 @@ collections:
     identifier_field: "name"
     summary: "{{name}}"
     sortable_fields: ["name", "birth_year", "death_year"]
+    editor:
+      preview: false
     fields:
       - { label: "ID", name: "id", widget: "hidden", default: "" }
       - { label: "Arhivski ID", name: "archive_id", widget: "hidden", default: "" }
       - { label: "Ime i prezime", name: "name", widget: "string" }
       - { label: "Javni URL", name: "permalink", widget: "hidden", default: "" }
-      - label: "Naziv za sortiranje"
-        name: "sort_name"
-        widget: "string"
-        required: false
-        hint: "Ako ostane prazno, automatski se formira kao Prezime, Ime."
+      - { label: "Naziv za sortiranje", name: "sort_name", widget: "hidden", default: "" }
       - { label: "Godina rođenja", name: "birth_year", widget: "number", required: false, value_type: "int" }
       - { label: "Godina smrti", name: "death_year", widget: "number", required: false, value_type: "int" }
       - { label: "Fotografija", name: "photo", widget: "image", required: false }
