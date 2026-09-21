@@ -1,8 +1,30 @@
 name: Build and deploy archive
 
 on:
+  # Content entries are released through the separate "Publish site" workflow.
+  # Keep automatic deploys for application/layout changes so admin and site
+  # maintenance still appear without a manual release.
   push:
     branches: [main]
+    paths:
+      - ".github/workflows/pages.yml"
+      - "_config.yml"
+      - "_includes/**"
+      - "_layouts/**"
+      - "_plugins/**"
+      - "admin/**"
+      - "assets/css/**"
+      - "assets/js/**"
+      - "autori/**"
+      - "djela/**"
+      - "zbirke/**"
+      - "index.md"
+      - "pretraga.md"
+      - "404.html"
+      - "Gemfile"
+      - "Gemfile.lock"
+      - "requirements-build.txt"
+      - "scripts/**"
   workflow_dispatch:
 
 permissions:
