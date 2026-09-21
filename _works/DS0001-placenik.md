@@ -1,15 +1,16 @@
 ---
-id: ""
-archive_id: ""
+id: DS0001
+archive_id: DS0001
 title: "Plaćenik"
 slug: "placenik"
 permalink: /djela/placenik/
-author: ""
+author: "dervis-susic"
 year: ""
 language: "bs"
 script: "latin"
 type: ""
 genres:
+  - pripovijetka
 period: ""
 source: ""
 edition: ""

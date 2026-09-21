@@ -39,7 +39,8 @@ In literary works, a single newline between prose passages starts a new paragrap
 on the website and a line break in PDF/EPUB downloads. On the website, one newline gives a small
 paragraph gap (0.45 em), while two newlines (a blank line) give a larger gap
 (1.3 em). Website paragraphs have no first-line indentation. In PDFs, a single
-source newline starts a new line with no extra vertical gap. A blank source line
+source newline starts a new line with a 1.5 em indent and no extra vertical gap.
+Automatically wrapped continuation lines stay flush left. A blank source line
 starts a new paragraph with a 1.3 em gap and a 1.5 em first-line indent. The opening
 paragraph and paragraphs after headings stay flush left. Printed lines are numbered
 in the left margin at 5, 10, 15, and so on, continuously across pages.
