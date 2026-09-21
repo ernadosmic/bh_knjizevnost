@@ -22,7 +22,9 @@ function Pandoc(document)
   local work_type = document.meta['work-type']
   local poetry = work_type and pandoc.utils.stringify(work_type) == 'poetry'
   local blocks = pandoc.Blocks({})
-  local last_block_was_prose = false
+  local previous_was_prose = false
+  local previous_was_header = false
+
   for _, block in ipairs(document.blocks) do
     if block.t == 'Header' and block.classes:includes('archive-note') then
       poetry = false
@@ -33,24 +35,33 @@ function Pandoc(document)
         table.insert(lines, pandoc.Inlines({pandoc.Str(line)}))
       end
       blocks:insert(pandoc.LineBlock(lines))
+      previous_was_prose = false
+      previous_was_header = false
     elseif block.t == 'Para' then
       local lines = split_lines(block.content)
       if poetry then
         blocks:insert(pandoc.LineBlock(lines))
+        previous_was_prose = false
+        previous_was_header = false
       else
-        if last_block_was_prose then
+        if previous_was_prose and not previous_was_header then
           blocks:insert(pandoc.RawBlock('latex', '\\addvspace{1.3em}'))
         end
-        for _, line in ipairs(lines) do
+        for index, line in ipairs(lines) do
           if #line > 0 then
+            if index > 1 and not previous_was_header then
+              blocks:insert(pandoc.RawBlock('latex', '\\addvspace{1.3em}'))
+            end
             blocks:insert(pandoc.Para(line))
           end
         end
+        previous_was_prose = true
+        previous_was_header = false
       end
-      last_block_was_prose = true
     else
       blocks:insert(block)
-      last_block_was_prose = false
+      previous_was_prose = false
+      previous_was_header = block.t == 'Header'
     end
   end
   document.blocks = blocks
