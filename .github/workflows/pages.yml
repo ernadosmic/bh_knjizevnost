@@ -38,8 +38,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y texlive-xetex poppler-utils
           python3 -m pip install -r requirements-build.txt
-      - name: Create missing author records for this build
+      - name: Normalize author records for this build
         run: python3 scripts/sync_authors.py
+      - name: Normalize collection records for this build
+        run: python3 scripts/sync_zbirke.py
       - name: Check literary text rendering
         run: python3 scripts/check_work_rendering.py
       - name: Check PDF spacing and line numbers

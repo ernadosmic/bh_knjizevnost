@@ -929,3 +929,15 @@ button:hover,
     line-height: 1.6;
   }
 }
+
+
+/* ---------- literary collections ---------- */
+
+.collection-order {
+  display: inline-block;
+  min-width: 2ch;
+  color: var(--muted);
+  font-family: var(--sans);
+  font-size: 0.8125em;
+  font-variant-numeric: tabular-nums;
+}

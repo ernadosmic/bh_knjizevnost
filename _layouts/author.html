@@ -13,6 +13,15 @@
                 %}{% for work in author_works %}{% include work-card.html work=work %}{% else %}<p class="empty-state">
                     Djela ovog autora još nisu unesena.</p>{% endfor %}</div>
         </section>
+        {% assign author_zbirke = site.zbirke | where: 'author', page.archive_id | sort: 'year' %}{% if author_zbirke.size > 0 %}<section class="author-works">
+            <h2 class="section-label">Zbirke</h2>
+            <div class="work-list">{% for zbirka in author_zbirke %}
+                {% assign zbirka_count = site.works | where: 'zbirka', zbirka.id | size %}
+                <a class="work-card" href="{{ zbirka.url | relative_url }}">
+                    <span class="work-card-title">{{ zbirka.title }}</span>
+                    <span class="work-card-meta">{{ site.zbirka_types[zbirka.type] | default: zbirka.type }}{% if zbirka.year %} · {{ zbirka.year }}{% endif %} · {{ zbirka_count }} djela</span>
+                </a>{% endfor %}</div>
+        </section>{% endif %}
     </main>
     {% include footer.html %}
 </body>

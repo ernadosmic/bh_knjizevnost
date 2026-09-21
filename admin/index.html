@@ -45,10 +45,11 @@
 
         CMS.registerEventListener({
             name: "preSave",
-            handler: ({ entry }) => {
+            handler: ({ entry, collection }) => {
                 let data = entry.get("data");
+                const collectionName = collection && collection.get("name");
 
-                if (data.has("title")) {
+                if (collectionName === "works") {
                     const title = clean(data.get("title"));
                     const id = clean(data.get("id"));
                     const newAuthor = clean(data.get("new_author"));
@@ -89,7 +90,25 @@
                         .set("permalink", `/djela/${author}/${slug}/`);
                 }
 
-                if (data.has("name")) {
+                if (collectionName === "zbirke") {
+                    const title = clean(data.get("title"));
+                    const slug = slugify(title);
+
+                    if (!title) {
+                        throw new Error("Unesi naslov zbirke.");
+                    }
+                    if (!slug) {
+                        throw new Error("Slug zbirke nije moguće generirati iz naslova.");
+                    }
+
+                    return data
+                        .set("id", slug)
+                        .set("archive_id", slug)
+                        .set("slug", slug)
+                        .set("permalink", `/zbirke/${slug}/`);
+                }
+
+                if (collectionName === "authors") {
                     const name = clean(data.get("name"));
                     const id = slugify(name);
                     const orderName = sortName(name);

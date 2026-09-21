@@ -1,0 +1,21 @@
+{% include head.html %}
+
+<body class="site-shell">
+    {% include header.html %}
+    <main id="main-content" class="wrap page-main">
+        <header class="page-heading">
+            <h1>Zbirke</h1>
+            <p class="lede">{{ site.zbirke | size }} {% if site.zbirke.size == 1 %}zbirka u arhivu{% else %}zbirki u arhivu{% endif %}.</p>
+        </header>
+        <div class="work-list">{% assign sorted_zbirke = site.zbirke | sort: 'title' %}{% for zbirka in sorted_zbirke %}
+            {% assign zbirka_author = site.authors | where: 'archive_id', zbirka.author | first %}
+            {% assign zbirka_count = site.works | where: 'zbirka', zbirka.id | size %}
+            <a class="work-card" href="{{ zbirka.url | relative_url }}">
+                <span class="work-card-title">{{ zbirka.title }}</span>
+                <span class="work-card-meta">{% if zbirka_author %}{{ zbirka_author.name }} · {% endif %}{{ site.zbirka_types[zbirka.type] | default: zbirka.type }}{% if zbirka.year %} · {{ zbirka.year }}{% endif %} · {{ zbirka_count }} djela</span>
+            </a>{% else %}<p class="empty-state">Zbirke još nisu unesene.</p>{% endfor %}</div>
+    </main>
+    {% include footer.html %}
+</body>
+
+</html>

@@ -20,6 +20,7 @@ from new_work import slugify, yaml_quote
 ROOT = Path(__file__).resolve().parent.parent
 WORKS = ROOT / "_works"
 AUTHORS = ROOT / "_authors"
+ZBIRKE = ROOT / "_zbirke"
 
 
 def split_document(path):
@@ -209,10 +210,37 @@ def normalize_works(aliases, canonical_names):
     return problems
 
 
+def normalize_zbirke(aliases):
+    problems = []
+    if not ZBIRKE.exists():
+        return problems
+
+    for zbirka_path in sorted(ZBIRKE.glob("*.md")):
+        data = read_front_matter(zbirka_path)
+        author_id = str(data.get("author") or "").strip()
+        if not author_id:
+            continue
+
+        desired_id = aliases.get(author_id, author_id)
+        if not (AUTHORS / ("%s.md" % desired_id)).exists():
+            problems.append(
+                "%s: collection author %s does not exist"
+                % (zbirka_path.name, desired_id)
+            )
+            continue
+
+        if desired_id != author_id:
+            rewrite_front_matter(zbirka_path, {"author": desired_id})
+            print("Updated %s" % zbirka_path.relative_to(ROOT))
+
+    return problems
+
+
 def main():
     AUTHORS.mkdir(parents=True, exist_ok=True)
     aliases, canonical_names, problems = normalize_authors()
     problems.extend(normalize_works(aliases, canonical_names))
+    problems.extend(normalize_zbirke(aliases))
 
     if problems:
         print("\nUnresolved author references:")
