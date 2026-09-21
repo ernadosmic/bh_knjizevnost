@@ -8,6 +8,8 @@ backend:
   repo: ernadosmic/bh_knjizevnost
   branch: main
 
+publish_mode: editorial_workflow
+
 media_folder: "assets/uploads"
 public_folder: "/assets/uploads"
 
