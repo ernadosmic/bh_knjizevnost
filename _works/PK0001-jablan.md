@@ -1,24 +1,23 @@
 ---
 id: PK0001
 archive_id: PK0001
-title: "Jablan"
-slug: "jablan"
+title: Jablan
+slug: jablan
 permalink: /djela/petar-kocic/jablan/
-author: "petar-kocic"
+author: petar-kocic
 year: 1902
-language: "sr"
-script: "latin"
-type: ""
-genres:
-  - pripovijetka
+language: sr
+script: latin
+type: short-story
+genres: []
 period: ""
+description: ""
 source: ""
 edition: ""
 source_pages: ""
-rights: ""
-rights_note: "Autor je preminuo 1916. godine. Provjerite pravni status u svojoj jurisdikciji prije ponovne objave."
+rights: public-domain
+rights_note: ""
 featured: false
-description: ""
 ---
 
 Odavno se uhvatio sumrak.
