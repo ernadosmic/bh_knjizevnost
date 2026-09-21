@@ -1,0 +1,107 @@
+name: Publish site
+
+run-name: Publish site — ${{ inputs.scope == 'all' && 'all saved drafts' || 'ready entries' }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      scope:
+        description: "Which saved CMS entries should be included?"
+        required: true
+        type: choice
+        default: ready
+        options:
+          - ready
+          - all
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
+concurrency:
+  group: site-wide-publish
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Find CMS entries for this release
+        id: drafts
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SCOPE: ${{ inputs.scope }}
+        run: |
+          set -euo pipefail
+
+          gh pr list \
+            --repo "$GITHUB_REPOSITORY" \
+            --state open \
+            --base main \
+            --limit 100 \
+            --json number,title,headRefName,labels \
+            > /tmp/cms-prs.json
+
+          if [ "$SCOPE" = "all" ]; then
+            jq -r '
+              .[]
+              | select(.headRefName | startswith("cms/"))
+              | [.number, .title]
+              | @tsv
+            ' /tmp/cms-prs.json > /tmp/release-prs.tsv
+          else
+            jq -r '
+              .[]
+              | select(.headRefName | startswith("cms/"))
+              | select(any(.labels[]?; .name == "decap-cms/pending_publish"))
+              | [.number, .title]
+              | @tsv
+            ' /tmp/cms-prs.json > /tmp/release-prs.tsv
+          fi
+
+          COUNT="$(wc -l < /tmp/release-prs.tsv | tr -d ' ')"
+          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
+
+          if [ "$COUNT" -eq 0 ]; then
+            echo "No matching CMS drafts. The current main branch will still be deployed."
+          else
+            echo "Entries selected for release:"
+            cat /tmp/release-prs.tsv
+          fi
+
+      - name: Merge selected CMS entries
+        if: steps.drafts.outputs.count != '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          while IFS=$'\t' read -r PR TITLE; do
+            echo "Publishing #$PR: $TITLE"
+            gh pr merge "$PR" \
+              --repo "$GITHUB_REPOSITORY" \
+              --squash \
+              --delete-branch
+          done < /tmp/release-prs.tsv
+
+      - name: Deploy the complete site once
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run pages.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref main
+
+      - name: Release summary
+        env:
+          COUNT: ${{ steps.drafts.outputs.count }}
+          SCOPE: ${{ inputs.scope }}
+        run: |
+          {
+            echo "## Site release started"
+            echo
+            echo "- CMS entries merged: $COUNT"
+            echo "- Scope: $SCOPE"
+            echo "- One Pages deployment was requested after all selected entries were merged."
+          } >> "$GITHUB_STEP_SUMMARY"
