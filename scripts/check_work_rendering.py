@@ -55,13 +55,15 @@ puts JSON.generate(cases.map { |c| WorkParagraphs.render(c['text'], poetry: c['p
         if case.get("poetry"):
             command += ["--metadata", "work-type=poetry"]
         documents.append(json.loads(run(command, case["text"]))["blocks"])
-    assert [b["t"] for b in documents[0]] == ["Para"] * 4
-    assert [b["t"] for b in documents[1]] == ["Para", "Para", "Header", "Para", "Para"]
+    assert [b["t"] for b in documents[0]] == ["Para", "RawBlock", "Para", "RawBlock", "Para", "RawBlock", "Para"]
+    assert [b["t"] for b in documents[1]] == ["Para", "RawBlock", "Para", "Header", "Para", "Para"]
     assert any(i["t"] == "Emph" for i in documents[1][1]["c"])
     assert [b["t"] for b in documents[2]] == ["Para", "LineBlock", "Para"]
     assert len(documents[2][1]["c"]) == 2
     assert [b["t"] for b in documents[3]] == ["LineBlock", "LineBlock"]
     assert [b["t"] for b in documents[4]] == ["BulletList", "CodeBlock", "BlockQuote"]
+    assert any(b["t"] == "RawBlock" and "addvspace" in b["c"][1] for b in documents[0]), \
+        "A source blank line must create PDF paragraph spacing"
     print("Passed: source newline spacing, inline formatting, verse, poetry, and Markdown blocks in both renderers.")
 
 

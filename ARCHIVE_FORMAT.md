@@ -38,11 +38,13 @@ The Markdown body after the front matter is the complete canonical literary text
 In literary works, a single newline between prose passages starts a new paragraph
 on the website and in PDF/EPUB downloads. On the website, one newline gives a small
 paragraph gap (0.45 em), while two newlines (a blank line) give a larger gap
-(1.3 em). Website paragraphs have no first-line indentation. PDFs use a 1.5 em
-first-line indent without extra paragraph spacing; the opening paragraph and
-paragraphs after headings stay flush left. Let the editor visually wrap long
-lines; insert a newline only where you want a new passage. Headings, lists,
-quotations, and code keep Markdown syntax.
+(1.3 em). Website paragraphs have no first-line indentation. In PDFs, every prose
+paragraph uses the normal 1.5 em first-line indent. A blank-line boundary additionally
+receives a 1.3 em paragraph gap; a single source newline creates the same indentation
+without that larger gap. The opening paragraph and paragraphs after headings stay
+flush left.
+Let the editor visually wrap long lines; insert a newline only where you want a new
+passage. Headings, lists, quotations, and code keep Markdown syntax.
 
 For verse inside prose, use a fenced `verse` block so the lines stay together and
 do not receive individual paragraph indents:
