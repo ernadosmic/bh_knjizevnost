@@ -38,7 +38,6 @@ Sjutra će se njegov Jablan bosti s carskim bakom. U njemu već odavno bukti, pl
 Molba je bačena, odgovor je knezu došao: dozvoljava se. Sjutra je Preobraženje, a ujedno i carski dan. Sjutra će se kod kneževe kuće ogledati Jablan i Rudonja.
 O tome Lujo budan sanja. Čas vidi kako je Jablan pao, kako uboden izdiše, čas opet kako je nadbo Rudonju, pa ponosito stoji na mejdanu. Čuje kako Jablan gromovito riče, a brda odjekuju. On doliga:
 
-```verse
 Volo-lige, dolo-lige!
 Jače moje milo baće
 od te vaše jadne krave!
@@ -46,7 +45,6 @@ od te vaše jadne krave!
 Nagrdim ti govedara
 i u kući kućanicu
 i na struzi strugaricu…
-```
 
 – Jabo, je li tebi studeno? – ču se Lujo ispod haljinice.Jablan pase, šuti, ništa ne odgovara. On ustade, pomilova ga, izvuče iz stoga dva snopa zobi, metnu pred baka, pa leže kraj njeg’. Poslije dugog polusanjivog, drhtavog trzanja prevari ga san. Kad Jablan pojede žito, leže i on kod svog dobrog druga.
 Duboka strahovita tišina. Vlažna svježina širi se kroz noć. Mlak vjetar poduhiva preko kuća, što se u polukružnom, neprekidnom nizu protežu ispod planine. Krovovi, obrasli mahovinom, jedva se raspoznaju, prema mjesečini, od zelenih šljivika kroz koje strše. Samo se gdje-gdje bjelaska nov krov. Selo spava mirno, slatko, kao jedro, zdravo i osorno planinče kada ga mati podoji i uljulja.
