@@ -85,6 +85,22 @@ collections:
           - { label: "Ostalo", value: "other" }
         default: "short-story"
         hint: "Ovo je glavna oznaka koja se prikazuje uz naslov djela i na stranici djela."
+      - label: "Zbirka"
+        name: "zbirka"
+        widget: "relation"
+        collection: "zbirke"
+        value_field: "id"
+        search_fields: ["title", "author"]
+        display_fields: ["title", "year"]
+        required: false
+        hint: "Opcionalno. Odaberi zbirku kojoj ovo djelo pripada."
+      - label: "Redni broj u zbirci"
+        name: "zbirka_order"
+        widget: "number"
+        required: false
+        value_type: "int"
+        min: 1
+        hint: "Opcionalno. Koristi za redoslijed djela unutar zbirke."
       - label: "Dodatne žanrovske oznake"
         name: "genres"
         widget: "list"
@@ -110,6 +126,50 @@ collections:
         name: "body"
         widget: "markdown"
         buttons: ["bold", "italic", "link", "heading-two", "quote", "bulleted-list", "numbered-list"]
+        modes: ["rich_text", "raw"]
+
+  - name: "zbirke"
+    label: "ZBIRKE"
+    label_singular: "Zbirka"
+    description: "Zbirke pripovjedaka, pjesama i druge knjige koje okupljaju pojedinačna djela."
+    folder: "_zbirke"
+    create: true
+    slug: "{{slug}}"
+    identifier_field: "title"
+    summary: "{{title}} — {{author}} ({{year}})"
+    sortable_fields: ["title", "year", "author"]
+    editor:
+      preview: false
+    fields:
+      - { label: "ID", name: "id", widget: "hidden", default: "" }
+      - { label: "Arhivski ID", name: "archive_id", widget: "hidden", default: "" }
+      - { label: "Naslov zbirke", name: "title", widget: "string" }
+      - { label: "Slug", name: "slug", widget: "hidden", default: "" }
+      - { label: "Javni URL", name: "permalink", widget: "hidden", default: "" }
+      - label: "Autor"
+        name: "author"
+        widget: "relation"
+        collection: "authors"
+        value_field: "id"
+        search_fields: ["name", "sort_name"]
+        display_fields: ["name", "birth_year", "death_year"]
+        required: false
+        hint: "Opcionalno, npr. za autorsku zbirku. Ostavi prazno za zbirke više autora."
+      - label: "Vrsta zbirke"
+        name: "type"
+        widget: "select"
+        options:
+          - { label: "Zbirka pripovjedaka", value: "story-collection" }
+          - { label: "Zbirka pjesama", value: "poetry-collection" }
+          - { label: "Mješovita zbirka", value: "mixed-collection" }
+          - { label: "Druga zbirka", value: "other-collection" }
+        default: "story-collection"
+      - { label: "Godina", name: "year", widget: "number", required: false, value_type: "int" }
+      - { label: "Kratak opis", name: "description", widget: "text", required: false }
+      - label: "Napomena / uvod"
+        name: "body"
+        widget: "markdown"
+        required: false
         modes: ["rich_text", "raw"]
 
   - name: "authors"
