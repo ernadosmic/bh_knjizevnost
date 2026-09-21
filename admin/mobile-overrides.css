@@ -225,3 +225,93 @@
   outline: 3px solid #3a69c7;
   outline-offset: 3px;
 }
+
+
+/* ---------- site-wide publish ---------- */
+
+#site-wide-publish-shortcut {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 500;
+  border: 0;
+  border-radius: 6px;
+  padding: 14px 20px;
+  background: #087f5b;
+  color: #fff;
+  font: 700 14px/1.2 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  letter-spacing: 0.03em;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.22);
+  cursor: pointer;
+}
+
+#site-wide-publish-shortcut:hover,
+#site-wide-publish-shortcut:focus-visible {
+  background: #066b4d;
+}
+
+#site-wide-publish-shortcut:focus-visible {
+  outline: 3px solid #74c0fc;
+  outline-offset: 3px;
+}
+
+.site-publish-panel {
+  width: min(680px, 100%);
+  padding: 24px;
+  border: 1px solid #d9dde3;
+  border-radius: 8px;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.site-publish-primary {
+  width: 100%;
+  min-height: 58px;
+  border: 0;
+  border-radius: 6px;
+  padding: 16px 20px;
+  background: #087f5b;
+  color: #fff;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+
+.site-publish-primary:hover,
+.site-publish-primary:focus-visible {
+  background: #066b4d;
+}
+
+.site-publish-primary:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.site-publish-primary:focus-visible {
+  outline: 3px solid #74c0fc;
+  outline-offset: 3px;
+}
+
+.site-publish-message {
+  margin: 14px 0 0;
+  color: #5c6370;
+  line-height: 1.5;
+}
+
+.site-publish-error {
+  color: #c92a2a;
+}
+
+@media (max-width: 799px) {
+  #site-wide-publish-shortcut {
+    right: 12px;
+    bottom: calc(env(safe-area-inset-bottom) + 12px);
+    width: calc(100vw - 24px);
+    padding: 15px 16px;
+  }
+
+  .site-publish-panel {
+    padding: 16px;
+  }
+}
