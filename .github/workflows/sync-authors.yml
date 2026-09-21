@@ -33,7 +33,7 @@ jobs:
         run: python3 scripts/sync_authors.py
       - name: Commit generated author records
         run: |
-          if git diff --quiet -- _authors; then
+          if [ -z "$(git status --porcelain -- _authors)" ]; then
             echo "No new author records."
             exit 0
           fi
