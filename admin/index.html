@@ -3,16 +3,17 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="robots" content="noindex, nofollow">
     <title>Biblioteka književnosti · Administracija</title>
     <style>
         @media (max-width: 900px) {
-            input,
-            textarea,
-            select,
-            [contenteditable="true"] {
-                font-size: 16px !important;
+            html,
+            body,
+            #nc-root {
+                width: 100%;
+                max-width: 100%;
+                overflow-x: hidden;
             }
         }
     </style>
@@ -23,6 +24,29 @@
     <script src="https://unpkg.com/decap-cms@3.17.0-beta.0/dist/decap-cms.js"></script>
     <script>
         const { CMS, initCMS: init } = window;
+
+        const viewport = document.querySelector('meta[name="viewport"]');
+        const defaultViewport = "width=device-width, initial-scale=1, viewport-fit=cover";
+        const lockedViewport = defaultViewport + ", maximum-scale=1";
+
+        function isEditorField(target) {
+            return target instanceof HTMLElement && (
+                target.matches("input, textarea, select") ||
+                target.isContentEditable
+            );
+        }
+
+        document.addEventListener("focusin", (event) => {
+            if (isEditorField(event.target)) {
+                viewport.setAttribute("content", lockedViewport);
+            }
+        });
+
+        document.addEventListener("focusout", () => {
+            requestAnimationFrame(() => {
+                viewport.setAttribute("content", defaultViewport);
+            });
+        });
 
         const transliteration = {
             "č": "c", "ć": "c", "đ": "d", "š": "s", "ž": "z",
