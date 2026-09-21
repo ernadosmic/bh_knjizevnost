@@ -53,6 +53,10 @@ jobs:
         uses: actions/configure-pages@v5
       - name: Build Jekyll
         run: bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}"
+      - name: Check collection pages
+        # Collection links and counts depend on Jekyll's rendered document IDs.
+        # Validate them after the site is built.
+        run: python3 scripts/check_collections.py
       - name: Build Pagefind index
         run: npx -y pagefind@1.5.2 --site _site
       - name: Upload Pages artifact

@@ -1,6 +1,6 @@
 {% assign author = site.authors | where: 'archive_id', page.author | first %}
 {% assign type_label = site.zbirka_types[page.type] | default: page.type %}
-{% assign zbirka_works = site.works | where: 'zbirka', page.id | sort: 'zbirka_order' %}
+{% assign zbirka_works = site.works | where: 'zbirka', page.archive_id | sort: 'zbirka_order' %}
 {% include head.html %}
 
 <body class="site-shell">

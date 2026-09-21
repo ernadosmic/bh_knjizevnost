@@ -87,7 +87,7 @@ collections:
         hint: "Ovo je glavna oznaka koja se prikazuje uz naslov djela i na stranici djela."
       - label: "Zbirka"
         name: "zbirka"
-        widget: "relation"
+        widget: "work-collection"
         collection: "zbirke"
         value_field: "id"
         search_fields: ["title", "author"]
@@ -141,7 +141,15 @@ collections:
     editor:
       preview: false
     fields:
-      - { label: "ID", name: "id", widget: "hidden", default: "" }
+      - label: "Djela u zbirci"
+        name: "id"
+        widget: "collection-works"
+        default: ""
+        required: false
+        collection: "works"
+        value_field: "{{slug}}"
+        search_fields: ["title", "id", "author"]
+        display_fields: ["title", "id"]
       - { label: "Arhivski ID", name: "archive_id", widget: "hidden", default: "" }
       - { label: "Naslov zbirke", name: "title", widget: "string" }
       - { label: "Slug", name: "slug", widget: "hidden", default: "" }

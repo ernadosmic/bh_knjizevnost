@@ -1,6 +1,6 @@
 {% assign author = site.authors | where: 'archive_id', page.author | first %}
 {% assign type_label = site.work_types[page.type] | default: page.type %}
-{% assign zbirka = site.zbirke | where: 'id', page.zbirka | first %}
+{% assign zbirka = site.zbirke | where: 'archive_id', page.zbirka | first %}
 {% assign pdf_path = '/assets/downloads/pdf/' | append: page.archive_id | append: '-' | append: page.slug | append: '.pdf' %}
 {% assign epub_path = '/assets/downloads/epub/' | append: page.archive_id | append: '-' | append: page.slug | append: '.epub' %}
 {% assign pdf_file = site.static_files | where: 'path', pdf_path | first %}

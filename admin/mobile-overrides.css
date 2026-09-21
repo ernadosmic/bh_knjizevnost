@@ -110,3 +110,17 @@
     overflow-wrap: anywhere !important;
   }
 }
+/* Collection actions also fit the narrow editor on phones. */
+.collection-work-manager { display: grid; gap: 12px; }
+.collection-work-manager p { margin: 0; line-height: 1.5; }
+.collection-work-action {
+  display: inline-block;
+  width: fit-content;
+  max-width: 100%;
+  padding: 10px 14px;
+  border-radius: 4px;
+  background: #263f3b;
+  color: white;
+  text-decoration: none;
+}
+.collection-work-action:focus-visible { outline: 3px solid #3a69c7; outline-offset: 3px; }

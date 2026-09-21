@@ -98,6 +98,17 @@ To check the generated PDF's actual spacing and line numbers across pages, run
 
 ## Online admin dashboard
 
+Inside **ZBIRKE**, open a saved collection and use **Djela u zbirci**:
+
+- **Napiši novo djelo** opens a new work with its collection and author selected.
+- **Dodaj postojeće djelo** searches existing works; **Otvori i dodaj u zbirku**
+  opens the selected work with this collection selected.
+
+The work editor opens in a new tab. Save/publish the work to apply its membership;
+opening it alone does not change anything. Set its optional order within the
+collection there too. Assigning an existing work moves it from its previous
+collection. Save a new collection before adding works to it.
+
 The dashboard is at https://ernadosmic.github.io/bh_knjizevnost/admin/.
 `admin/config.yml` contains the connected site's public Site ID. Online login
 becomes available after the admin configuration is deployed. The following
