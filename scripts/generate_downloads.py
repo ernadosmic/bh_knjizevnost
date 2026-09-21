@@ -84,7 +84,7 @@ def main() -> None:
             "language": metadata.get("language", ""),
             "type": metadata.get("type", ""),
             "rights": metadata.get("rights", "unknown"),
-            "url": f"/djela/{metadata.get('author', '')}/{metadata['slug']}/",
+            "url": metadata.get("permalink") or f"/djela/{metadata.get('author', '')}/{metadata['slug']}/",
             "pdf": f"/assets/downloads/pdf/{filename}.pdf",
             "epub": f"/assets/downloads/epub/{filename}.epub",
         })

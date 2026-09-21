@@ -47,8 +47,8 @@ in the left margin at 5, 10, 15, and so on, continuously across pages.
 Let the editor visually wrap long lines; insert a newline only where you want a new
 passage. Headings, lists, quotations, and code keep Markdown syntax.
 
-For verse inside prose, use a fenced `verse` block so the lines stay together and
-do not receive individual paragraph indents:
+For verse inside prose, use a fenced `verse` block to preserve its line breaks.
+PDFs indent each verse line just like prose source lines, including across pages:
 
 ````markdown
 First prose passage.
