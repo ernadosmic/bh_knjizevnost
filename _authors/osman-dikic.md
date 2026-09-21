@@ -1,8 +1,8 @@
 ---
 layout: author
-id: "osman-djikic"
-archive_id: "osman-djikic"
-permalink: "/autori/osman-djikic/"
+id: "osman-dikic"
+archive_id: "osman-dikic"
+permalink: "/autori/osman-dikic/"
 name: "Osman Đikić"
 birth_year: 1879
 death_year: 1912

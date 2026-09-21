@@ -6,7 +6,7 @@ permalink: "/autori/mehmed-beg-kapetanovic-ljubusak/"
 name: "Mehmed-beg Kapetanović Ljubušak"
 birth_year: 1839
 death_year: 1902
-sort_name: "Kapetanović Ljubušak, Mehmed-beg"
+sort_name: "Ljubušak, Mehmed-beg Kapetanović"
 photo: ""
 description: "Mehmed-beg Kapetanović Ljubušak (1839–1902) bio je bosanskohercegovački pisac, sakupljač narodnog blaga i javni djelatnik."
 ---
