@@ -3,8 +3,8 @@ id: DS0001
 archive_id: DS0001
 title: Plaćenik
 slug: placenik
-permalink: /djela/placenik/
-author: dervis-susic
+permalink: "/djela/dervis-susic/placenik/"
+author: "dervis-susic"
 year: 1966
 language: bs
 script: latin
@@ -19,6 +19,7 @@ source_pages: ""
 rights: public-domain
 rights_note: ""
 featured: false
+author_name: "Derviš Sušić"
 ---
 
 Bi ružno proljeće.

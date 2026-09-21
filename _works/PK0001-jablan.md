@@ -3,8 +3,8 @@ id: PK0001
 archive_id: PK0001
 title: Jablan
 slug: jablan
-permalink: /djela/petar-kocic/jablan/
-author: petar-kocic
+permalink: "/djela/petar-kocic/jablan/"
+author: "petar-kocic"
 year: 1902
 language: sr
 script: latin
@@ -18,6 +18,7 @@ source_pages: ""
 rights: public-domain
 rights_note: ""
 featured: false
+author_name: "Petar Kočić"
 ---
 
 Odavno se uhvatio sumrak.

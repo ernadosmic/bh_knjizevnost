@@ -2,7 +2,7 @@
 layout: author
 id: "petar-kocic"
 archive_id: "petar-kocic"
-permalink: /autori/petar-kocic/
+permalink: "/autori/petar-kocic/"
 name: "Petar Kočić"
 birth_year: 1877
 death_year: 1916

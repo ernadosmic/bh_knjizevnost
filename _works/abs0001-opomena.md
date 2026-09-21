@@ -3,9 +3,9 @@ id: ABS0001
 archive_id: ABS0001
 title: Opomena
 slug: opomena
-permalink: /djela/antun-branko-sinic/opomena/
-author: antun-branko-sinic
-author_name: Antun Branko Šinić
+permalink: "/djela/antun-branko-simic/opomena/"
+author: "antun-branko-simic"
+author_name: "Antun Branko Šimić"
 language: hr
 script: latin
 type: poetry
