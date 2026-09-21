@@ -54,6 +54,7 @@ collections:
       - label: "Uvezi Markdown (.md)"
         name: "import_md"
         widget: "import-md"
+        import_kind: "work"
         required: false
         hint: "Opcionalno. Odaberi postojeću .md datoteku; front matter i tekst će biti uvezeni pri spremanju."
       - label: "Trajni ID"
@@ -222,6 +223,7 @@ collections:
       - label: "Uvezi Markdown (.md)"
         name: "import_md"
         widget: "import-md"
+        import_kind: "author"
         required: false
         hint: "Opcionalno. Odaberi postojeću .md datoteku sa podacima o autoru i biografijom."
       - { label: "ID", name: "id", widget: "hidden", default: "" }
