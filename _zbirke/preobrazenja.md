@@ -1,9 +1,9 @@
 ---
-id: ""
-archive_id: ""
+id: "preobrazenja"
+archive_id: "preobrazenja"
 title: Preobraženja
-slug: ""
-permalink: ""
+slug: "preobrazenja"
+permalink: "/zbirke/preobrazenja/"
 author: antun-branko-simic
 type: story-collection
 year: 1920
