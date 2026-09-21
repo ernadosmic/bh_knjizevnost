@@ -19,6 +19,25 @@ slug:
   sanitize_replacement: "-"
 
 collections:
+  - name: "release"
+    label: "OBJAVI STRANICU"
+    label_singular: "Objava stranice"
+    description: "Objavi sve sačuvane CMS izmjene odjednom i zatim pokreni jedan build stranice."
+    publish: false
+    delete: false
+    files:
+      - name: "publish-site"
+        label: "Objavi stranicu"
+        file: "admin/release.yml"
+        editor:
+          preview: false
+        fields:
+          - label: "Objavi sve sačuvane izmjene"
+            name: "request_nonce"
+            widget: "site-publish"
+            required: false
+          - { label: "Opseg", name: "scope", widget: "hidden", default: "all" }
+
   - name: "works"
     label: "DJELA"
     label_singular: "Djelo"
