@@ -1,0 +1,26 @@
+{% assign author = site.authors | where: 'archive_id', page.author | first %}
+{% assign type_label = site.zbirka_types[page.type] | default: page.type %}
+{% assign zbirka_works = site.works | where: 'zbirka', page.id | sort: 'zbirka_order' %}
+{% include head.html %}
+
+<body class="site-shell">
+    {% include header.html %}
+    <main id="main-content" class="wrap page-main" data-pagefind-body>
+        <header class="page-heading">
+            <h1>{{ page.title }}</h1>
+            <p class="lede">{% if author %}<a href="{{ author.url | relative_url }}">{{ author.name }}</a>{% endif %}{% if author and type_label %} · {% endif %}{{ type_label }}{% if page.year %} · {{ page.year }}{% endif %}</p>
+            {% if page.description != empty %}<p class="lede">{{ page.description }}</p>{% endif %}
+        </header>
+        {% if content != empty %}<div class="prose bio">{{ content }}</div>{% endif %}
+        <section class="author-works">
+            <h2 class="section-label">Sadržaj zbirke</h2>
+            <div class="work-list">{% for work in zbirka_works %}<a class="work-card" href="{{ work.url | relative_url }}">
+                    <span class="work-card-title">{% if work.zbirka_order %}<span class="collection-order">{{ work.zbirka_order }}.</span> {% endif %}{{ work.title }}</span>
+                    <span class="work-card-meta">{{ site.work_types[work.type] | default: work.type }}{% if work.year %} · {{ work.year }}{% endif %}</span>
+                </a>{% else %}<p class="empty-state">U ovu zbirku još nije dodano nijedno djelo.</p>{% endfor %}</div>
+        </section>
+    </main>
+    {% include footer.html %}
+</body>
+
+</html>
