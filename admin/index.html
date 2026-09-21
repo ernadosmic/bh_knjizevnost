@@ -1,15 +1,124 @@
 <!doctype html>
-<html lang="en">
+<html lang="bs">
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex, nofollow">
-    <title>Biblioteka književnosti CMS</title>
+    <title>Biblioteka književnosti · Administracija</title>
+    <script>window.CMS_MANUAL_INIT = true;</script>
 </head>
 
 <body>
     <script src="https://unpkg.com/decap-cms@3.17.0-beta.0/dist/decap-cms.js"></script>
+    <script>
+        const { CMS, initCMS: init } = window;
+
+        const transliteration = {
+            "č": "c", "ć": "c", "đ": "d", "š": "s", "ž": "z",
+            "Č": "C", "Ć": "C", "Đ": "D", "Š": "S", "Ž": "Z"
+        };
+
+        function clean(value) {
+            return String(value || "").trim();
+        }
+
+        function slugify(value) {
+            let normalized = clean(value);
+            Object.keys(transliteration).forEach((letter) => {
+                normalized = normalized.split(letter).join(transliteration[letter]);
+            });
+            return normalized
+                .normalize("NFKD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, "-")
+                .replace(/^-+|-+$/g, "");
+        }
+
+        function sortName(fullName) {
+            const parts = clean(fullName).split(/\s+/).filter(Boolean);
+            if (parts.length < 2) return clean(fullName);
+            return `${parts[parts.length - 1]}, ${parts.slice(0, -1).join(" ")}`;
+        }
+
+        CMS.registerEventListener({
+            name: "preSave",
+            handler: ({ entry }) => {
+                let data = entry.get("data");
+
+                if (data.has("title")) {
+                    const title = clean(data.get("title"));
+                    const id = clean(data.get("id"));
+                    const newAuthor = clean(data.get("new_author"));
+                    let author = clean(data.get("author"));
+                    let slug = clean(data.get("slug"));
+
+                    if (!id) {
+                        throw new Error("Unesi trajni ID djela.");
+                    }
+                    if (!title) {
+                        throw new Error("Unesi naslov djela.");
+                    }
+
+                    if (!slug) {
+                        slug = slugify(title);
+                    }
+                    if (!slug) {
+                        throw new Error("Slug nije moguće generirati iz naslova.");
+                    }
+
+                    if (newAuthor) {
+                        author = slugify(newAuthor);
+                        if (!author) {
+                            throw new Error("ID autora nije moguće generirati iz imena.");
+                        }
+                        data = data.set("author_name", newAuthor);
+                    }
+
+                    if (!author) {
+                        throw new Error("Odaberi postojećeg autora ili upiši novog autora.");
+                    }
+
+                    return data
+                        .set("author", author)
+                        .delete("new_author")
+                        .set("slug", slug)
+                        .set("archive_id", id)
+                        .set("permalink", `/djela/${author}/${slug}/`);
+                }
+
+                if (data.has("name")) {
+                    const name = clean(data.get("name"));
+                    let id = clean(data.get("id"));
+                    let orderName = clean(data.get("sort_name"));
+
+                    if (!name) {
+                        throw new Error("Unesi ime i prezime autora.");
+                    }
+                    if (!id) {
+                        id = slugify(name);
+                    }
+                    if (!id) {
+                        throw new Error("ID autora nije moguće generirati iz imena.");
+                    }
+                    if (!orderName) {
+                        orderName = sortName(name);
+                    }
+
+                    return data
+                        .set("id", id)
+                        .set("archive_id", id)
+                        .set("sort_name", orderName)
+                        .set("permalink", `/autori/${id}/`);
+                }
+
+                return data;
+            },
+        });
+
+        init();
+    </script>
 </body>
 
 </html>

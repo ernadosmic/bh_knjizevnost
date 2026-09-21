@@ -1,0 +1,44 @@
+name: Sync author records
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "_works/**"
+      - "scripts/sync_authors.py"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-authors
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install parser
+        run: python3 -m pip install -r requirements-build.txt
+      - name: Create missing authors
+        run: python3 scripts/sync_authors.py
+      - name: Commit generated author records
+        run: |
+          if [ -z "$(git status --porcelain -- _authors)" ]; then
+            echo "No new author records."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add _authors
+          git commit -m "Create missing author records"
+          git push
