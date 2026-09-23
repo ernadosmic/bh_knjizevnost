@@ -15,6 +15,7 @@ language: hr
 script: latin
 rights: unknown
 featured: false
+record_type: "work"
 ---
 O gdje su sada one žene
 što lutajući ovim svijetom svratiše se u moj život

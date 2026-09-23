@@ -15,6 +15,7 @@ language: hr
 script: latin
 rights: unknown
 featured: false
+record_type: "work"
 ---
 I poslije toga
 na koljenima izmeđ razbacanih jastuka

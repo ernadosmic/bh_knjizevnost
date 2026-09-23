@@ -19,6 +19,7 @@ rights: public-domain
 rights_note: ""
 featured: false
 author_name: "Petar Kočić"
+record_type: "work"
 ---
 
 Odavno se uhvatio sumrak.

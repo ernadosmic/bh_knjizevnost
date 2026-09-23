@@ -15,6 +15,7 @@ language: hr
 script: latin
 rights: unknown
 featured: false
+record_type: "work"
 ---
 Moj otac reče sinoć: "Sine, jesen je"
 I već su noćas naš kraj cijeli poplavile žute vode

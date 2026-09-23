@@ -15,6 +15,7 @@ language: hr
 script: latin
 rights: unknown
 featured: false
+record_type: "work"
 ---
 Ja poznam bol mladića
 koji pobjednički pjev iz svoga izmučenog srca

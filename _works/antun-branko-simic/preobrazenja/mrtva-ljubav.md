@@ -15,6 +15,7 @@ language: hr
 script: latin
 rights: unknown
 featured: false
+record_type: "work"
 ---
 Kraj ljubavi u duši mrtvo zvoni
 Veče slazi s neba plavo

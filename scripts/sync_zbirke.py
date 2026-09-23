@@ -8,7 +8,7 @@ from work_tree import work_paths
 
 ROOT = Path(__file__).resolve().parent.parent
 WORKS = ROOT / "_works"
-ZBIRKE = ROOT / "_zbirke"
+ZBIRKE = WORKS
 
 
 def normalize_zbirke():
@@ -17,51 +17,38 @@ def normalize_zbirke():
 
     ZBIRKE.mkdir(parents=True, exist_ok=True)
 
-    for original_path in sorted(ZBIRKE.glob("*.md")):
+    for original_path in sorted(ZBIRKE.glob("*/*/index.md")):
         data = read_front_matter(original_path)
         title = str(data.get("title") or "").strip()
         if not title:
             problems.append("%s: missing collection title" % original_path.name)
             continue
 
-        desired_id = str(data.get("id") or data.get("archive_id") or original_path.stem).strip()
+        desired_id = str(data.get("id") or data.get("archive_id") or original_path.parent.name).strip()
         public_slug = str(data.get("slug") or desired_id).strip()
         if not safe_identifier(desired_id) or not safe_identifier(public_slug):
             problems.append("%s: invalid collection identifier" % original_path.name)
             continue
 
         old_ids = {
-            original_path.stem,
+            original_path.parent.name,
             str(data.get("id") or "").strip(),
             str(data.get("archive_id") or "").strip(),
             str(data.get("slug") or "").strip(),
         }
         old_ids.discard("")
 
-        target_path = ZBIRKE / ("%s.md" % desired_id)
-        if target_path.exists() and target_path != original_path:
-            problems.append(
-                "%s: cannot rename to %s because that collection already exists"
-                % (original_path.name, target_path.name)
-            )
-            continue
-
         rewrite_front_matter(
             original_path,
             {
+                "record_type": "collection",
+                "author": original_path.parent.parent.name,
                 "id": desired_id,
                 "archive_id": desired_id,
                 "slug": public_slug,
-                "permalink": "/zbirke/%s/" % public_slug,
+                "permalink": data.get("permalink") or "/zbirke/%s/" % public_slug,
             },
         )
-
-        if target_path != original_path:
-            original_path.rename(target_path)
-            print(
-                "Renamed %s -> %s"
-                % (original_path.relative_to(ROOT), target_path.relative_to(ROOT))
-            )
 
         for old_id in old_ids | {desired_id}:
             aliases[old_id] = desired_id
@@ -72,6 +59,7 @@ def normalize_zbirke():
 def normalize_work_membership(aliases):
     problems = []
     used_orders = {}
+    collection_paths = {str(read_front_matter(p).get("id")): p for p in ZBIRKE.glob("*/*/index.md")}
     pending = []
 
     for work_path in work_paths(WORKS):
@@ -81,8 +69,8 @@ def normalize_work_membership(aliases):
             continue
 
         desired_id = aliases.get(zbirka_id, zbirka_id)
-        zbirka_path = ZBIRKE / ("%s.md" % desired_id)
-        if not safe_identifier(desired_id) or not zbirka_path.exists():
+        zbirka_path = collection_paths.get(desired_id)
+        if not safe_identifier(desired_id) or not zbirka_path or not zbirka_path.exists():
             problems.append(
                 "%s: collection %s does not exist" % (work_path.name, desired_id)
             )
@@ -130,14 +118,8 @@ def normalize_work_membership(aliases):
 
 
 def main():
-    aliases, problems = normalize_zbirke()
-    problems.extend(normalize_work_membership(aliases))
-
-    if problems:
-        print("\nCollection consistency errors:")
-        for issue in problems:
-            print("- %s" % issue)
-        raise SystemExit(1)
+    from prepare_archive import prepare
+    prepare(ROOT)
 
 
 if __name__ == "__main__":

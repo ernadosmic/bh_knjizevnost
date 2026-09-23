@@ -15,6 +15,7 @@ language: hr
 script: latin
 rights: unknown
 featured: false
+record_type: "work"
 ---
 Pod širokim šeširima, u odjeći apartnoj
 - u džepove ruke i u duše tajne

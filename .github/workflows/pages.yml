@@ -60,10 +60,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y texlive-xetex poppler-utils
           python3 -m pip install -r requirements-build.txt
-      - name: Normalize author records for this build
-        run: python3 scripts/sync_authors.py
-      - name: Normalize collection records for this build
-        run: python3 scripts/sync_zbirke.py
+      - name: Prepare unified archive
+        run: python3 scripts/prepare_archive.py
+      - name: Check archive hierarchy
+        run: python3 scripts/test_editor_sync.py
       - name: Check literary text rendering
         run: python3 scripts/check_work_rendering.py
       - name: Check PDF spacing and line numbers

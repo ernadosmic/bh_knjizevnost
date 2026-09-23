@@ -7,12 +7,13 @@
     function workURL(collectionId, author, type, workSlug) {
         const params = new URLSearchParams();
         params.set("assign_zbirka", collectionId);
+        if (author) params.set("assign_author", author);
         if (!workSlug) {
             params.set("zbirka", collectionId);
             if (author) params.set("author", author);
             if (type === "poetry-collection") params.set("type", "poetry");
         }
-        const path = workSlug ? `entries/${encodeURIComponent(workSlug)}` : "new";
+        const path = workSlug ? `entries/${workSlug.split("/").map(encodeURIComponent).join("/")}` : "new";
         return `#/collections/works/${path}?${params}`;
     }
 
@@ -56,30 +57,38 @@
             const params = new URLSearchParams(hash.split("?")[1] || "");
             const assignment = hash.startsWith("#/collections/works/")
                 ? params.get("assign_zbirka") : null;
-            return { assignment };
+            return { assignment, author: params.get("assign_author") };
         },
         componentDidMount() {
             if (this.state.assignment !== null) {
-                this.changeCollection(this.state.assignment);
+                const { assignment, author } = this.state;
+                this.changeCollection(assignment);
+                if (author) window.queueMicrotask(() => {
+                    window.ArchiveFields.setValue("author", author);
+                    window.ArchiveFields.setValue("zbirka", assignment);
+                });
                 // Apply the link once. Reloading must not undo later edits.
                 const url = new URL(window.location.href);
                 const [route, query] = url.hash.split("?");
                 const params = new URLSearchParams(query);
                 params.delete("assign_zbirka");
+                params.delete("assign_author");
                 url.hash = route + (params.size ? `?${params}` : "");
                 window.history.replaceState(null, "", url);
-                this.setState({ assignment: null });
             }
         },
-        changeCollection(value) {
+        changeCollection(value, metadata) {
             if (value !== this.props.value) {
+                const author = metadata?.zbirka?.zbirke?.[value]?.author;
+                if (author) window.ArchiveFields.setValue("author", author);
                 // A position belongs to its old collection. Append automatically
                 // when moving a work, after the sibling field has mounted.
                 window.queueMicrotask(() => {
                     if (window.ArchiveFields) window.ArchiveFields.setValue("zbirka_order", "");
                 });
             }
-            this.props.onChange(value);
+            this.props.onChange(value, metadata);
+            if (this.state.assignment !== null) this.setState({ assignment: null });
         },
         shouldComponentUpdate() { return true; },
         render() {

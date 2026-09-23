@@ -15,6 +15,7 @@ language: hr
 script: latin
 rights: unknown
 featured: false
+record_type: "work"
 ---
 Ne, njega nema više. Pobjego je. Vrata
 na kući dolje glasno zalupila

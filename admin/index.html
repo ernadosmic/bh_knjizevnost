@@ -13,8 +13,8 @@
 <body>
     <script src="https://unpkg.com/decap-cms@3.17.0-beta.0/dist/decap-cms.js"></script>
     <script src="https://unpkg.com/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
-    <script src="./collection-works.js"></script>
-    <script src="./editor-widgets.js?v=2"></script>
+    <script src="./collection-works.js?v=2"></script>
+    <script src="./editor-widgets.js?v=3"></script>
     <script src="./import-md.js?v=4"></script>
     <script src="./site-publish.js"></script>
     <script>
@@ -183,6 +183,8 @@
                 let data = entry.get("data");
                 // The pinned Decap version supplies the collection on entry.
                 const collectionName = (collection && collection.get("name")) || entry.get("collection");
+                const finish = (result) => window.ArchiveLocation
+                    ? window.ArchiveLocation.validateSave(entry, result) : result;
                 // Decap's Duplicate action copies hidden metadata too. A copy
                 // starts a new identity; editing an existing entry preserves it.
                 if (entry.get("newRecord") && data.get("permalink") && !data.get("import_md")) {
@@ -228,9 +230,11 @@
                         throw new Error("Odaberi postojećeg autora ili upiši novog autora.");
                     }
 
-                    return data
+                    return finish(data
                         .set("id", id)
+                        .set("file_name", slugify(title) === "index" ? "index-work" : (slugify(title) || "djelo"))
                         .set("author", author)
+                        .set("source_folder", [author, clean(data.get("zbirka"))].filter(Boolean).join("/"))
                         .set("zbirka", clean(data.get("zbirka")))
                         .delete("new_author")
                         .set("script", !data.get("script") || data.get("script") === "auto"
@@ -238,7 +242,7 @@
                         .set("created_at", data.get("created_at") || new Date().toISOString())
                         .set("slug", slug)
                         .set("archive_id", id)
-                        .set("permalink", clean(data.get("permalink")) || `/djela/${author}/${slug}/`);
+                        .set("permalink", clean(data.get("permalink")) || `/djela/${author}/${slug}/`));
                 }
 
                 if (collectionName === "zbirke") {
@@ -253,11 +257,11 @@
                         throw new Error("Slug zbirke nije moguće generirati iz naslova.");
                     }
 
-                    return data
+                    return finish(data
                         .set("id", id)
                         .set("archive_id", id)
                         .set("slug", slug)
-                        .set("permalink", `/zbirke/${slug}/`);
+                        .set("permalink", clean(data.get("permalink")) || `/zbirke/${slug}/`));
                 }
 
                 if (collectionName === "authors") {

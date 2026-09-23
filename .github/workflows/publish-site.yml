@@ -25,7 +25,7 @@ permissions:
   actions: write
 
 concurrency:
-  group: site-wide-publish
+  group: archive-content
   cancel-in-progress: false
 
 jobs:
@@ -120,6 +120,28 @@ jobs:
               --squash \
               --delete-branch
           done < /tmp/release-prs.tsv
+
+      - name: Checkout merged archive
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Save derived archive metadata
+        run: |
+          python3 -m pip install -r requirements-build.txt
+          python3 scripts/prepare_archive.py
+          git add -A _works
+          if ! git diff --cached --quiet; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "Synchronize archive metadata with folder membership"
+            git push
+          fi
 
       - name: Deploy the complete site once
         env:

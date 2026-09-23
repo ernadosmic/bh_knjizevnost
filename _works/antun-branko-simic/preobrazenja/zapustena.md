@@ -15,6 +15,7 @@ language: hr
 script: latin
 rights: unknown
 featured: false
+record_type: "work"
 ---
 U jednoj sobi ogromnoga grada
 pokraj sirotnoga pokućstva i suđa

@@ -14,7 +14,7 @@ from work_tree import work_paths
 
 ROOT = Path(__file__).resolve().parents[1]
 WORKS = ROOT / "_works"
-AUTHORS = ROOT / "_authors"
+AUTHORS = WORKS
 PDF_DIR = ROOT / "assets" / "downloads" / "pdf"
 EPUB_DIR = ROOT / "assets" / "downloads" / "epub"
 PARAGRAPH_FILTER = ROOT / "scripts" / "work_paragraphs.lua"
@@ -53,7 +53,7 @@ def main() -> None:
     if not shutil.which("pandoc"):
         raise SystemExit("Pandoc is required to generate downloads. Install it and retry.")
     author_data = {}
-    for path in AUTHORS.glob("*.md"):
+    for path in AUTHORS.glob("*/index.md"):
         metadata, _ = read_document(path)
         author_data[metadata["id"]] = metadata
     PDF_DIR.mkdir(parents=True, exist_ok=True)

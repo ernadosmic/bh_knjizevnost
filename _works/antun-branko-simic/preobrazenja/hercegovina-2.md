@@ -15,6 +15,7 @@ language: hr
 script: latin
 rights: unknown
 featured: false
+record_type: "work"
 ---
 Pod zvijezdama su legla brda i poljem niske razbacane kuće
 Iz plave tame stabla strše

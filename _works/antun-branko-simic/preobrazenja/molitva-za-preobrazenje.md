@@ -15,6 +15,7 @@ language: hr
 script: latin
 rights: unknown
 featured: false
+record_type: "work"
 ---
 Dan još je samo nekoliko svjetla koja gasnu
 na vrhovima

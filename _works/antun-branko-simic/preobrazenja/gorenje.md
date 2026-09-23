@@ -15,6 +15,7 @@ language: hr
 script: latin
 rights: unknown
 featured: false
+record_type: "work"
 ---
 Niz zapadno nebo
 i iz rasprsnutih šipaka u vrtu

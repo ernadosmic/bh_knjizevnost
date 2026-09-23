@@ -15,6 +15,7 @@ language: hr
 script: latin
 rights: unknown
 featured: false
+record_type: "work"
 ---
 Ja sam natrag došo
 bez mutnih misli na svom licu

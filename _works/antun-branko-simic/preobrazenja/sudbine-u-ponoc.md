@@ -15,6 +15,7 @@ language: hr
 script: latin
 rights: unknown
 featured: false
+record_type: "work"
 ---
 Obrazi su teški vise... dogaraju oči
 mutne vlažne prazne

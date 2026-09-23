@@ -15,6 +15,7 @@ language: hr
 script: latin
 rights: unknown
 featured: false
+record_type: "work"
 ---
 Kroz pozor uđu glasi predmeta i ljudi
 iz večeri u moju nerasvijetljenu sobu

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Scaffold a work or author file for the archive.
 
-The Markdown files in _works/ and _authors/ are the source of truth. This
+The Markdown files throughout _works/ are the source of truth. This
 script only writes a correct, empty skeleton so the identifiers, permalink and
 controlled vocabularies do not have to be copied by hand. Paste the literary
 text into the file afterwards with any editor.
@@ -21,13 +21,12 @@ import sys
 import unicodedata
 import uuid
 
-import yaml
 from work_tree import work_paths, unique_path
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 WORKS = ROOT / "_works"
-AUTHORS = ROOT / "_authors"
+AUTHORS = WORKS
 
 # Kept in step with admin/config.yml and the label maps in _config.yml.
 TYPES = ["short-story", "novella", "novel", "poetry", "essay", "drama", "other"]
@@ -79,8 +78,7 @@ def front_matter_lines(path):
 def existing_work_with_permalink(permalink):
     """Find a work already published at this URL.
 
-    The filename carries a freshly allocated id, so it never collides on a
-    repeat run. The permalink is what actually has to be unique -- two files
+    The permalink has to be unique -- two files
     sharing one would silently fight over the same page.
     """
     wanted = permalink.strip("/")
@@ -93,7 +91,10 @@ def existing_work_with_permalink(permalink):
 
 
 def create_work(args):
-    author_file = AUTHORS / ("%s.md" % args.author)
+    from sync_authors import read_front_matter, safe_identifier
+    if not safe_identifier(args.author) or (args.collection and not safe_identifier(args.collection)):
+        sys.exit("Author and collection folder IDs must contain letters, numbers, hyphens or underscores.")
+    author_file = AUTHORS / args.author / "index.md"
     if not author_file.exists():
         sys.exit("No author file at %s.\nCreate the author first:\n"
                  "  python scripts/new_work.py author --name \"...\""
@@ -101,20 +102,25 @@ def create_work(args):
 
     archive_id = args.id or "D-" + str(uuid.uuid4())
     slug = args.slug or (slugify(args.title) or "djelo") + "-" + archive_id.lower()
+    if not safe_identifier(archive_id) or not safe_identifier(slug):
+        sys.exit("Invalid work ID or URL slug.")
+    if any(str(read_front_matter(p).get("id")) == archive_id for p in work_paths(WORKS)):
+        sys.exit("A work with this permanent ID already exists.")
     if not slug:
         sys.exit("Could not derive a slug from the title; pass --slug explicitly.")
 
     permalink = "/djela/%s/%s/" % (args.author, slug)
     clash = existing_work_with_permalink(permalink)
-    if clash is not None and not args.force:
+    if clash is not None:
         sys.exit("%s already publishes %s.\nUse --slug to pick a different URL, "
-                 "or --force to overwrite." % (clash.relative_to(ROOT), permalink))
+                 "or edit the existing work." % (clash.relative_to(ROOT), permalink))
 
 
     # `id` is what the archive format calls the permanent identifier, but Jekyll
     # reserves `id` on collection documents, so `archive_id` carries it in
     # templates. Both are written, with the same value.
     fields = [
+        ("record_type", "work"),
         ("id", yaml_quote(archive_id)),
         ("archive_id", yaml_quote(archive_id)),
         ("title", yaml_quote(args.title)),
@@ -157,6 +163,7 @@ def create_work(args):
     directory.mkdir(parents=True, exist_ok=True)
     path = unique_path(directory, slugify(args.title) or "djelo")
     ensure_absent(path, args.force)
+    path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text("\n".join(lines), encoding="utf-8", newline="\n")
     print("Wrote %s" % path.relative_to(ROOT))
     print("Public URL: /djela/%s/%s/" % (args.author, slug))
@@ -164,9 +171,12 @@ def create_work(args):
 
 
 def create_author(args):
+    from sync_authors import safe_identifier
     author_id = args.id or slugify(args.name)
     if not author_id:
         sys.exit("Could not derive an id from the name; pass --id explicitly.")
+    if not safe_identifier(author_id):
+        sys.exit("Invalid author folder ID.")
 
     sort_name = args.sort_name
     if not sort_name:
@@ -176,6 +186,7 @@ def create_author(args):
     lines = [
         "---",
         "layout: author",
+        "record_type: author",
         "id: %s" % yaml_quote(author_id),
         "archive_id: %s" % yaml_quote(author_id),
         "permalink: /autori/%s/" % author_id,
@@ -191,8 +202,9 @@ def create_author(args):
         "",
     ]
 
-    path = AUTHORS / ("%s.md" % author_id)
+    path = AUTHORS / author_id / "index.md"
     ensure_absent(path, args.force)
+    path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text("\n".join(lines), encoding="utf-8", newline="\n")
     print("Wrote %s" % path.relative_to(ROOT))
     print("Author id for work files: %s" % author_id)
@@ -225,7 +237,7 @@ def main():
     work.add_argument("--force", action="store_true")
     work.set_defaults(func=create_work)
 
-    author = sub.add_parser("author", help="scaffold an author in _authors/")
+    author = sub.add_parser("author", help="scaffold _works/{author}/index.md")
     author.add_argument("--name", required=True)
     author.add_argument("--born", type=int)
     author.add_argument("--died", type=int)

@@ -4,8 +4,10 @@ This document describes the durable data format. The CMS and Jekyll are convenie
 
 ## Directory structure
 
-- `_works/`: one UTF-8 Markdown file per literary work.
-- `_authors/`: one UTF-8 Markdown file per author.
+- `_works/{author}/index.md`: author metadata and Markdown biography.
+- `_works/{author}/{filename}.md`: a standalone literary work.
+- `_works/{author}/{collection}/index.md`: collection metadata and introduction.
+- `_works/{author}/{collection}/{filename}.md`: a work in that collection.
 - `assets/downloads/`: generated PDF and EPUB files; do not edit these by hand.
 - `archive-manifest.json`: generated machine-readable catalog of every work. The starter file documents the sample record before the first download build.
 - `scripts/generate_downloads.py`: reproducible Pandoc and manifest generation.
@@ -14,13 +16,40 @@ This document describes the durable data format. The CMS and Jekyll are convenie
 
 ## Work files
 
-A work file starts with YAML front matter between two `---` lines. Required fields are:
+A work file starts with YAML front matter between two `---` lines. To add a work
+by hand, only its title and body need to be supplied:
+
+```markdown
+---
+title: Opomena
+type: poetry
+---
+The literary text goes here.
+```
+
+Place it in the author's folder, or in a collection folder beneath that author.
+The build fills in permanent identity and derived metadata. Filenames can be
+changed freely; `index.md` is reserved for profiles. Author and collection folder
+names match their permanent profile IDs and are allocated automatically by the
+editor. Changing a display name or title does not rename its folder.
+
+Folder location is authoritative: moving a work changes its author/collection,
+moving it out of a collection clears membership and order, and moving an entire
+collection changes the author of the collection and its works. Existing IDs and
+public URLs are preserved. YAML `author`, `author_name`, `zbirka`, and the CMS's
+optional `source_folder` are synchronized from placement. `record_type` is
+derived from the file's role (`work`, `author`, or `collection`). Duplicate IDs
+and work URLs are rejected instead of silently overwriting another record.
+
+The normalized fields are:
 
 - `id`: permanent archive identifier, such as `PK0001`.
 - `title`: published title.
 - `slug`: URL-safe title segment used in download filenames.
 - `permalink`: explicit public URL, normally `/djela/{author-id}/{slug}/`. It can change without changing `id`.
-- `author`: author `id` from `_authors/`.
+- `author`: containing author's `id` from its `index.md`.
+- `zbirka`: containing collection's `id`, or empty for a standalone work.
+- `zbirka_order`: position within the collection; missing positions append automatically.
 - `year`: original publication year when known.
 - `language`: language code such as `bs`, `hr`, or `sr`.
 - `script`: `latin` or `cyrillic`.
@@ -74,7 +103,30 @@ automatically. Keep the title and author in front matter; templates display them
 
 ## Author files
 
-Author files use `id`, `name`, `birth_year`, `death_year`, `sort_name`, `photo`, and a Markdown biography body. Works refer to the author by `id`; author pages calculate their work list from that relationship, so the list is never duplicated in author files.
+An author's `index.md` uses `id`, `name`, `birth_year`, `death_year`, `sort_name`,
+`photo`, and a Markdown biography body. Works refer to the author by `id`; author
+pages calculate their work list from that relationship. A missing author index
+is scaffolded automatically when a work is added to a new author folder.
+
+## Collection files
+
+A collection's `index.md` uses `id`, `title`, `author`, `year`, `type`, `description`,
+and a Markdown introduction. Its author comes from the parent folder. Works are
+discovered from sibling Markdown files and ordered by `zbirka_order`. A missing
+collection index is scaffolded when a work is placed in a new collection folder.
+
+## Synchronization
+
+`python scripts/prepare_archive.py` validates the tree, fills missing IDs and
+profiles, and synchronizes metadata. Jekyll and download builds invoke it
+automatically. Repeated runs leave unchanged files untouched. GitHub's archive
+sync and publication workflows save generated metadata back into the repository
+so the CMS sees it on its next load.
+
+For older checkouts, `python scripts/prepare_archive.py --migrate` moves legacy
+flat works and separate profile folders into this hierarchy, without replacing
+existing files. The Jekyll `authors` and `zbirke` collections are virtual views
+of this tree; they have no separate source folders.
 
 ## URLs and identifiers
 
@@ -86,4 +138,8 @@ Jekyll uses each work file's explicit `permalink`, normally `/djela/{author}/{sl
 
 ## Reconstructing the site
 
-A future developer can ignore Decap CMS, install any Markdown/YAML parser, read the two collections, and create a new frontend or static generator. The manifest provides stable IDs, metadata, canonical relative URLs, and generated download paths. No database, API, account, proprietary content format, or analytics service is required.
+A future developer can ignore Decap CMS, install any Markdown/YAML parser, walk
+the single `_works/` tree, and create a new frontend or static generator. The
+manifest provides source paths, stable IDs, metadata, canonical relative URLs,
+and generated download paths. No database, API, account, proprietary content
+format, or analytics service is required.

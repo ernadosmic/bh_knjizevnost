@@ -15,6 +15,7 @@ language: hr
 script: latin
 rights: unknown
 featured: false
+record_type: "work"
 ---
 O one žene u životu
 u čije oči još se iz nijedne duše

@@ -15,6 +15,7 @@ language: hr
 script: latin
 rights: unknown
 featured: false
+record_type: "work"
 ---
 Bože
 koji si me do ovoga časa doveo nevidljiv

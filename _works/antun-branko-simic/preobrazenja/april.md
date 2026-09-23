@@ -15,6 +15,7 @@ language: hr
 script: latin
 rights: unknown
 featured: false
+record_type: "work"
 ---
 U vrtu ispod aprilskoga sunca
 pucaju polako prvi pupovi

@@ -1,0 +1,49 @@
+name: Sync archive metadata
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "_works/**"
+      - "scripts/prepare_archive.py"
+      - "scripts/work_tree.py"
+      - "scripts/sync_authors.py"
+      - "scripts/sync_zbirke.py"
+      - ".github/workflows/sync-archive.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: archive-content
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install parser
+        run: python3 -m pip install -r requirements-build.txt
+      - name: Synchronize folder membership and metadata
+        run: python3 scripts/prepare_archive.py
+      - name: Commit normalized records
+        run: |
+          if [ -z "$(git status --porcelain -- _works)" ]; then
+            echo "No archive records changed."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A _works
+          git commit -m "Synchronize archive metadata with folder membership"
+          git push

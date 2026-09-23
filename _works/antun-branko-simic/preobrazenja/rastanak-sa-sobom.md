@@ -15,6 +15,7 @@ language: hr
 script: latin
 rights: unknown
 featured: false
+record_type: "work"
 ---
 Mi stojimo na rubu svijeta
 i gledamo u zapadanje zadnjih zvijezda u dubljine noći

@@ -15,6 +15,7 @@ language: hr
 script: latin
 rights: unknown
 featured: false
+record_type: "work"
 ---
 Moju je dušu izmučila ljubav
 Moja je duša bolesna

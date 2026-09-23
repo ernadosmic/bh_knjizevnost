@@ -43,9 +43,10 @@ collections:
     label_singular: "Djelo"
     description: "Unesi naslov, odaberi ili dodaj autora i napiši tekst. Ostale podatke možeš dopuniti kasnije."
     folder: "_works"
+    filter: { field: "record_type", value: "work" }
     create: true
-    slug: "{{title}}"
-    path: "{{author}}/{{zbirka}}/{{slug}}"
+    slug: "{{file_name}}"
+    path: "{{source_folder}}/{{slug}}"
     media_folder: "/assets/uploads"
     public_folder: "/assets/uploads"
     nested:
@@ -70,6 +71,9 @@ collections:
         required: false
         hint: "Odaberi datoteku da automatski popuniš obrazac."
       - { label: "ID", name: "id", widget: "hidden", default: "" }
+      - { label: "Mapa", name: "source_folder", widget: "hidden", default: "" }
+      - { label: "Datoteka", name: "file_name", widget: "hidden", default: "" }
+      - { label: "Vrsta zapisa", name: "record_type", widget: "hidden", default: "work" }
       - { label: "Arhivski ID", name: "archive_id", widget: "hidden", default: "" }
       - { label: "Slug", name: "slug", widget: "hidden", default: "" }
       - { label: "Javni URL", name: "permalink", widget: "hidden", default: "" }
@@ -174,25 +178,39 @@ collections:
     label: "ZBIRKE"
     label_singular: "Zbirka"
     description: "Zbirke pripovjedaka, pjesama i druge knjige koje okupljaju pojedinačna djela."
-    folder: "_zbirke"
+    folder: "_works"
+    filter: { field: "record_type", value: "collection" }
     create: true
-    slug: "{{slug}}"
+    slug: "{{id}}"
+    path: "{{author}}/{{slug}}/index"
+    nested:
+      depth: 3
+      index_file: "index"
+    meta:
+      path:
+        widget: "work-location"
+        label: "Mapa zbirke"
+        required: false
+    media_folder: "/assets/uploads"
+    public_folder: "/assets/uploads"
     identifier_field: "title"
     summary: "{{title}} — {{author}} ({{year}})"
     sortable_fields: ["title", "year", "author"]
     editor:
       preview: false
     fields:
+      - { label: "Vrsta zapisa", name: "record_type", widget: "hidden", default: "collection" }
       - { label: "Naslov zbirke", name: "title", widget: "string" }
       - label: "Autor"
         name: "author"
         widget: "relation"
+        import_target: true
         collection: "authors"
         value_field: "id"
         search_fields: ["name", "sort_name"]
         display_fields: ["name", "birth_year", "death_year"]
-        required: false
-        hint: "Opcionalno, npr. za autorsku zbirku. Ostavi prazno za zbirke više autora."
+        required: true
+        hint: "Zbirka će biti spremljena u mapu odabranog autora."
       - label: "Vrsta zbirke"
         name: "type"
         widget: "select"
@@ -226,9 +244,13 @@ collections:
     label: "AUTORI"
     label_singular: "Autor"
     description: "Uredi ime, biografiju i podatke o autoru."
-    folder: "_authors"
+    folder: "_works"
+    filter: { field: "record_type", value: "author" }
     create: true
     slug: "{{id}}"
+    path: "{{slug}}/index"
+    media_folder: "/assets/uploads"
+    public_folder: "/assets/uploads"
     identifier_field: "name"
     summary: "{{name}}"
     sortable_fields: ["name", "birth_year", "death_year"]
@@ -242,6 +264,7 @@ collections:
         required: false
         hint: "Opcionalno. Odaberi postojeću .md datoteku sa podacima o autoru i biografijom."
       - { label: "ID", name: "id", widget: "hidden", default: "" }
+      - { label: "Vrsta zapisa", name: "record_type", widget: "hidden", default: "author" }
       - { label: "Arhivski ID", name: "archive_id", widget: "hidden", default: "" }
       - { label: "Ime i prezime", name: "name", import_target: true, widget: "string" }
       - { label: "Javni URL", name: "permalink", widget: "hidden", default: "" }

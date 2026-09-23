@@ -5,7 +5,7 @@ import uuid
 
 
 def work_paths(root):
-    return sorted(Path(root).rglob("*.md"))
+    return sorted(path for path in Path(root).rglob("*.md") if path.name.lower() != "index.md")
 
 
 def placement(path, root):
@@ -23,6 +23,7 @@ def unique_path(directory, stem, reserved=()):
     directory = Path(directory)
     occupied = {str(Path(p)).casefold() for p in reserved}
     occupied.update(str(p).casefold() for p in directory.glob("*.md"))
+    occupied.add(str(directory / "index.md").casefold())
     candidate = directory / f"{stem}.md"
     number = 2
     while str(candidate).casefold() in occupied:
@@ -59,27 +60,90 @@ def migrate_flat(root):
     return planned
 
 
+def migrate_profiles(root):
+    from sync_authors import read_front_matter, safe_identifier
+    root = Path(root).resolve()
+    planned = []
+    for source in sorted((root / "_authors").glob("*.md")):
+        identifier = str(read_front_matter(source).get("id") or source.stem)
+        if not safe_identifier(identifier):
+            raise ValueError(f"Invalid author ID: {source}")
+        planned.append((source, root / "_works" / identifier / "index.md"))
+    for source in sorted((root / "_zbirke").glob("*.md")):
+        data = read_front_matter(source)
+        author, identifier = str(data.get("author") or ""), str(data.get("id") or source.stem)
+        if not safe_identifier(author) or not safe_identifier(identifier):
+            raise ValueError(f"Collection needs an author and ID: {source}")
+        planned.append((source, root / "_works" / author / identifier / "index.md"))
+    destinations = set()
+    for source, target in planned:
+        source.resolve().relative_to(root)
+        target.resolve().relative_to(root / "_works")
+        key = str(target).casefold()
+        if target.exists() or key in destinations:
+            raise ValueError(f"Refusing to overwrite {target}")
+        destinations.add(key)
+    for source, target in planned:
+        target.parent.mkdir(parents=True, exist_ok=True)
+        source.rename(target)
+    for name in ("_authors", "_zbirke"):
+        directory = root / name
+        marker = directory / ".gitkeep"
+        if marker.is_file():
+            marker.unlink()
+        if directory.is_dir() and not any(directory.iterdir()):
+            directory.rmdir()
+    return planned
+
+
 def apply_placements(root, authors, collections):
     from new_work import slugify
-    from sync_authors import read_front_matter, rewrite_front_matter
+    from sync_authors import read_front_matter, rewrite_front_matter, safe_identifier
     root, authors, collections = map(Path, (root, authors, collections))
-    author_names = {str(d.get("id")): str(d.get("name") or "")
-                    for p in authors.glob("*.md") for d in [read_front_matter(p)]}
-    known_collections = {str(read_front_matter(p).get("id")) for p in collections.glob("*.md")}
+    profiles = sorted(p for p in root.rglob("*.md") if p.name.lower() == "index.md")
+    seen_profiles = {}
+    for path in profiles:
+        if len(path.relative_to(root).parts) not in (2, 3) or path.name != "index.md":
+            raise ValueError(f"{path}: profiles belong at author/index.md or author/collection/index.md")
+        data = read_front_matter(path)
+        identifier = str(data.get("id") or data.get("archive_id") or path.parent.name)
+        kind = "author" if path.parent.parent == root else "collection"
+        label = "name" if kind == "author" else "title"
+        placement(path, root)
+        if not str(data.get(label) or "").strip():
+            raise ValueError(f"{path}: missing {label} in YAML front matter")
+        if identifier != path.parent.name:
+            raise ValueError(f"{path}: profile folder must match its permanent ID ({identifier})")
+        key = kind, identifier
+        if key in seen_profiles:
+            raise ValueError(f"Duplicate {kind} ID {identifier}: {seen_profiles[key]} and {path}")
+        seen_profiles[key] = path
+    author_names = {str(d.get("id") or p.parent.name): str(d.get("name") or "")
+                    for p in authors.glob("*/index.md") for d in [read_front_matter(p)]}
+    collection_ids = {(p.parent.parent.name, p.parent.name): str(read_front_matter(p).get("id") or p.parent.name)
+                      for p in collections.glob("*/*/index.md")}
     updates = []
     ids, urls = {}, {}
     new_collections = {}
+    new_authors = {}
+    for path in collections.glob("*/*/index.md"):
+        author = path.parent.parent.name
+        if author not in author_names:
+            new_authors[author] = author.replace("-", " ").title()
     for path in work_paths(root):
         location = placement(path, root)
         if location is None:
             raise ValueError(f"{path}: move this work into an author folder (or run --migrate)")
-        author, collection = location
+        author, collection_folder = location
+        collection = collection_ids.get(location, collection_folder)
         data = read_front_matter(path)
         title = str(data.get("title") or "").strip()
         if not title:
             raise ValueError(f"{path}: missing title in YAML front matter")
         identifier = str(data.get("id") or data.get("archive_id") or f"D-{uuid.uuid4()}")
         slug = str(data.get("slug") or f"{slugify(title) or 'djelo'}-{identifier.lower()}")
+        if not safe_identifier(identifier) or not safe_identifier(slug):
+            raise ValueError(f"{path}: work ID and URL slug must contain only letters, numbers, hyphens or underscores")
         url = str(data.get("permalink") or f"/djela/{author}/{slug}/")
         for value, seen, label in [(identifier, ids, "ID"), (url, urls, "public URL")]:
             if value in seen:
@@ -89,25 +153,34 @@ def apply_placements(root, authors, collections):
         name = author_names.get(author) or (
             str(data.get("author_name") or "") if not changed_author else ""
         ) or author.replace("-", " ").title()
-        patch = {"id": identifier, "archive_id": identifier, "slug": slug,
+        patch = {"record_type": "work", "id": identifier, "archive_id": identifier, "slug": slug,
                  "permalink": url, "author": author, "author_name": name, "zbirka": collection}
+        if "source_folder" in data:
+            patch["source_folder"] = path.parent.relative_to(root).as_posix()
         if str(data.get("zbirka") or "") != collection:
             patch["zbirka_order"] = ""
         patch = {key: value for key, value in patch.items() if data.get(key, "") != value}
         if patch:
             updates.append((path, patch))
-        if collection and collection not in known_collections:
-            new_collections.setdefault(collection, set()).add(author)
+        if author not in author_names:
+            new_authors[author] = name
+        if collection and location not in collection_ids:
+            existing = seen_profiles.get(("collection", collection))
+            if existing or (collection in new_collections.values() and location not in new_collections):
+                raise ValueError(f"{path}: collection ID {collection} is already used in another author folder")
+            new_collections[location] = collection
     # No source changes until the complete tree has passed validation.
-    collections.mkdir(parents=True, exist_ok=True)
-    for identifier, members in new_collections.items():
+    for author, name in new_authors.items():
+        from sync_authors import create_author
+        create_author(author, name)
+    for (author, folder), identifier in new_collections.items():
         import yaml
-        metadata = {"id": identifier, "archive_id": identifier,
+        metadata = {"record_type": "collection", "id": identifier, "archive_id": identifier,
                     "title": identifier.replace("-", " ").title(), "slug": identifier,
                     "permalink": f"/zbirke/{identifier}/", "type": "mixed-collection"}
-        if len(members) == 1:
-            metadata["author"] = next(iter(members))
-        target = collections / f"{identifier}.md"
+        metadata["author"] = author
+        target = collections / author / folder / "index.md"
+        target.parent.mkdir(parents=True, exist_ok=True)
         with target.open("x", encoding="utf-8", newline="\n") as output:
             output.write("---\n" + yaml.safe_dump(metadata, allow_unicode=True, sort_keys=False) + "---\n")
     for path, patch in updates:

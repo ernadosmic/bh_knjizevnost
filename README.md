@@ -1,6 +1,24 @@
 # Biblioteka književnosti
 
-Static literary archive built with Jekyll. The canonical copy of every work is a UTF-8 Markdown file with YAML front matter in `_works/`; authors live in `_authors/`. Decap CMS is an optional editing interface over those files, not the source of truth.
+Static literary archive built with Jekyll. All canonical content lives together in `_works/`, as UTF-8 Markdown with YAML front matter. Decap CMS is an optional editing interface over those files.
+
+```text
+_works/
+  petar-kocic/
+    index.md                # Author information and biography
+    jablan.md               # A standalone work
+  antun-branko-simic/
+    index.md                # Author information and biography
+    preobrazenja/
+      index.md              # Collection information and introduction
+      pjesnici.md
+      opomena.md
+```
+
+The containing folders determine a work's author and collection. Move a work
+to change membership; rename its file freely. Its YAML ID, title, and public
+URL remain independent of its filename. `index.md` is reserved for the folder's
+author or collection profile. The editor creates folders and IDs automatically.
 
 ## Requirements
 
@@ -25,7 +43,7 @@ Open `http://localhost:4000/`. The GitHub Actions workflow injects the repositor
 
 ## Adding a work
 
-The Markdown files in `_works/` and `_authors/` are the source of truth. Once
+The Markdown files throughout `_works/` are the source of truth. Once
 online login is connected (see below), use the `/admin/` dashboard to add and
 edit works and authors. Publishing saves a commit to `main`; GitHub Actions
 then rebuilds the website and PDF/EPUB downloads.
@@ -40,16 +58,22 @@ python scripts/new_work.py author --name "Isak Samokovlija" --born 1889 --died 1
 python scripts/new_work.py work --title "Jablan" --author petar-kocic --year 1902 --type short-story
 ```
 
-The work command allocates the next free archive id for that author, derives the
-slug from the title, and refuses to create a second work at a URL already in
-use. Open the new file and replace the placeholder body with the literary text.
+The work command allocates a permanent UUID and creates a readable filename in
+the author's folder. Add `--collection preobrazenja` to place it in a collection.
+Repeated titles get numbered filenames automatically. Open the new file and
+replace the placeholder body with the literary text.
 Run `python scripts/new_work.py work --help` for the full list of fields.
 
-**Or copy an existing file.** Duplicate any file in `_works/`, change the front
-matter, and replace the body. `ARCHIVE_FORMAT.md` documents every field.
+**Or create a Markdown file in the appropriate folder.** Set `title` in YAML and
+write the text below it. IDs and URLs are filled in automatically on the next
+build. When copying an existing work to create a different one, remove its
+`id`, `archive_id`, `slug`, `permalink`, and `zbirka_order` first.
+`ARCHIVE_FORMAT.md` documents the fields.
 
-Either way, check it locally with `bundle exec jekyll serve`, then commit and
-push. The deploy workflow rebuilds the site.
+Check it locally with `bundle exec jekyll serve`, then commit and push. Local
+and deployed builds synchronize folder membership automatically. You can also
+run `python scripts/prepare_archive.py` directly. Release the updated content
+through **OBJAVI STRANICU** or the **Publish site** workflow.
 
 ### Optional: the Decap editing UI, locally
 
@@ -169,4 +193,8 @@ To use an existing Chromium installation, set `PLAYWRIGHT_CHROMIUM_EXECUTABLE`.
 
 ## Durable archive principle
 
-The site can be reconstructed without Jekyll or Decap: parse the YAML front matter in `_works/*.md` and `_authors/*.md`, render the Markdown body, and use the `url` and metadata in `archive-manifest.json`. Generated PDFs and EPUBs are reproducible with `scripts/generate_downloads.py` and must not be edited by hand.
+The site can be reconstructed without Jekyll or Decap: walk `_works/` recursively,
+read each author's and collection's `index.md`, and render the other Markdown
+files as works. The manifest includes each work's `source_path`, ID, and URL.
+Generated PDFs and EPUBs are reproducible with `scripts/generate_downloads.py`
+and must not be edited by hand.

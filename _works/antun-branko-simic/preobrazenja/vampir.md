@@ -15,6 +15,7 @@ language: hr
 script: latin
 rights: unknown
 featured: false
+record_type: "work"
 ---
 On vodi mene u noć
 Ruka mu je mala topla mekana

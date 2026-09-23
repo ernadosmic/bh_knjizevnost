@@ -15,6 +15,7 @@ language: hr
 script: latin
 rights: unknown
 featured: false
+record_type: "work"
 ---
 O podne se na šetalište slete mnoge žene
 - O odakle sve dođu? -

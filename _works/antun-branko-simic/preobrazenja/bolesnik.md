@@ -15,6 +15,7 @@ language: hr
 script: latin
 rights: unknown
 featured: false
+record_type: "work"
 ---
 Moje je tijelo bolesno
 i žudi tihu jednu bolnicu

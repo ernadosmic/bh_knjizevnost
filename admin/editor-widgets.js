@@ -57,9 +57,11 @@
     // in the same save. The work's filename is retained for existing entries.
     const WorkLocation = createClass({
         getInitialState() { return { folder: this.props.value || "" }; },
+        getValidateValue() { return this.state.folder; },
         shouldComponentUpdate() { return true; },
         componentDidMount() {
             this.active = true;
+            window.ArchiveLocation = this;
             this.changed = () => window.queueMicrotask(() => {
                 if (this.active) this.syncFolder();
             });
@@ -73,7 +75,8 @@
                     const [author, collection = ""] = folder.split("/");
                     const fields = window.ArchiveFields;
                     if (fields.getValue("author") !== author) fields.setValue("author", author);
-                    if ((fields.getValue("zbirka") || "") !== collection) {
+                    if (this.props.entry.get("collection") === "works" &&
+                        (fields.getValue("zbirka") || "") !== collection) {
                         fields.setValue("zbirka", collection);
                         fields.setValue("zbirka_order", "");
                     }
@@ -83,7 +86,22 @@
         },
         componentWillUnmount() {
             this.active = false;
+            if (window.ArchiveLocation === this) delete window.ArchiveLocation;
             window.removeEventListener("archive-field-change", this.changed);
+        },
+        async validateSave(entry, data) {
+            if (entry.get("newRecord")) return data;
+            const source = entry.get("path");
+            const kind = entry.get("collection");
+            const folder = kind === "zbirke"
+                ? [data.get("author"), data.get("id")].join("/") : data.get("source_folder");
+            const target = `_works/${folder}/${String(source).split("/").pop()}`;
+            if (target === source) return data;
+            const result = await this.props.query(this.props.forID, kind, ["id"], "");
+            const occupied = (result.payload.hits || []).some(hit =>
+                hit.path.toLowerCase() === target.toLowerCase() && hit.path !== source);
+            if (occupied) throw new Error("U odabranoj mapi već postoji datoteka istog imena. Preimenuj datoteku prije premještanja.");
+            return data;
         },
         syncFolder() {
             const fields = window.ArchiveFields;
@@ -98,11 +116,26 @@
                 author = id;
             }
             if (!author) return;
-            const folder = [author, fields.getValue("zbirka")].filter(Boolean).join("/");
+            const entry = this.props.getEntry ? this.props.getEntry() : this.props.entry;
+            let collection = entry.get("collection") === "zbirke"
+                ? entry.getIn(["data", "id"]) : fields.getValue("zbirka");
+            if (entry.get("collection") === "works" && this.previousAuthor &&
+                this.previousAuthor !== author && collection && collection === this.previousCollection) {
+                collection = "";
+                fields.setValue("zbirka", "");
+                fields.setValue("zbirka_order", "");
+            }
+            this.previousAuthor = author;
+            this.previousCollection = collection;
+            const folder = [author, collection].filter(Boolean).join("/");
             if (folder !== this.state.folder) this.setState({ folder });
-            if (this.props.entry.get("newRecord") && this.props.value) {
-                this.props.onChange("");
-            } else if (!this.props.entry.get("newRecord") && folder !== this.props.value) {
+            // New entries use the path template and Decap's unique-slug allocator.
+            // A custom path bypasses that allocator and can overwrite same-title files.
+            if (entry.get("newRecord")) {
+                if (this.props.value) this.props.onChange("");
+            } else if (folder !== this.props.value &&
+                (this.props.value || folder !== String(entry.get("path") || "")
+                    .replace(/^_works\//, "").replace(/\/[^/]+$/, ""))) {
                 this.props.onChange(folder);
             }
         },

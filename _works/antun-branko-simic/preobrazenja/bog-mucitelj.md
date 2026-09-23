@@ -15,6 +15,7 @@ language: hr
 script: latin
 rights: unknown
 featured: false
+record_type: "work"
 ---
 U naše duše iznenada stupi mržnja
 - O naše iskrivljene usne, raskidana lica! -

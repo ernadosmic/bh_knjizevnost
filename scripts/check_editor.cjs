@@ -22,6 +22,7 @@ const root = path.join(__dirname, '..');
     page.setDefaultTimeout(15000);
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
+    page.on('console', message => { if (message.type() === 'error') console.error('Browser:', message.text()); });
     await page.route('http://localhost:4199/**', route => {
         const url = new URL(route.request().url());
         if (url.pathname === '/admin/') return route.fulfill({ contentType: 'text/html', body: html });
@@ -58,6 +59,9 @@ const root = path.join(__dirname, '..');
         await field('Autor').fill('Narodna pjesma');
         await field('Naslov').fill('Edited title');
         const first = await save();
+        const firstHash = await page.evaluate(() => location.hash);
+        const firstRoute = decodeURIComponent(firstHash);
+        assert.equal(firstRoute, '#/collections/works/entries/narodna-pjesma/edited-title');
         assert.match(first.id, /^D-[0-9a-f-]{36}$/);
         assert.equal(first.archive_id, first.id);
         assert.equal(first.author, 'narodna-pjesma');
@@ -73,6 +77,14 @@ const root = path.join(__dirname, '..');
         assert.equal(edited.id, first.id);
         assert.equal(edited.permalink, first.permalink);
         console.log('Passed: repeat saves preserve IDs and URLs.');
+
+        await newEntry('works');
+        await upload('duplicate.md', '---\ntitle: Edited title\nauthor: Narodna pjesma\n---\nA different work with the same title.');
+        await page.getByText('A different work with the same title.', { exact: false }).waitFor();
+        const duplicate = await save();
+        assert.notEqual(duplicate.id, first.id);
+        assert.notEqual(decodeURIComponent(await page.evaluate(() => location.hash)), firstRoute);
+        console.log('Passed: duplicate titles save to separate source files.');
 
         await newEntry('works');
         await upload('NP0001-poem.md', '\uFEFF---\r\nid: NP0001\r\ntitle: Đerzelez Alija\r\nauthor: Narodna pjesma\r\ntype: poem\r\ngenres: [epika, narodna]\r\n---\r\nPrvi stih\r\nDrugi stih\r\n');
@@ -91,6 +103,7 @@ const root = path.join(__dirname, '..');
         await upload('author.md', '---\nname: Isak Samokovlija\nbirth_year: 1889\n---\nBiografija autora.\n');
         await page.getByText('Biografija autora.', { exact: false }).waitFor();
         const author = await save();
+        assert.equal(decodeURIComponent(await page.evaluate(() => location.hash)), `#/collections/authors/entries/${author.id}/index`);
         await field('Ime i prezime').fill('Corrected Author Name');
         const changedAuthor = await save();
         assert.equal(changedAuthor.id, author.id);
@@ -100,12 +113,40 @@ const root = path.join(__dirname, '..');
 
         await page.evaluate(() => { location.hash = '#/collections/zbirke/new'; });
         await field('Naslov zbirke').fill('Moja zbirka');
+        await page.getByRole('combobox').first().fill('Corrected');
+        await page.getByText('Corrected Author Name', { exact: false }).click();
         const collection = await save();
+        assert.equal(decodeURIComponent(await page.evaluate(() => location.hash)), `#/collections/zbirke/entries/${author.id}/${collection.id}/index`);
         await field('Naslov zbirke').fill('Ispravljen naslov zbirke');
         const changedCollection = await save();
         assert.equal(changedCollection.id, collection.id);
         assert.equal(changedCollection.permalink, collection.permalink);
         console.log('Passed: collection title correction preserves membership and URLs.');
+
+        await page.evaluate(() => { location.hash = '#/collections/works'; });
+        await field('Naslov zbirke').waitFor({ state: 'detached' });
+        await page.evaluate(route => { location.hash = route; },
+            firstRoute);
+        await page.waitForFunction(() => window.ArchiveFields.getValue('title') === 'Corrected title');
+        await page.evaluate(({ author, collection }) => {
+            ArchiveFields.setValue('author', author);
+            ArchiveFields.setValue('zbirka', collection);
+        }, { author: author.id, collection: collection.id });
+        await page.getByText(`${author.id}/${collection.id}`, { exact: true }).waitFor();
+        const moved = await save();
+        assert.equal(moved.id, first.id);
+        assert.equal(moved.permalink, first.permalink);
+        assert.equal(decodeURIComponent(await page.evaluate(() => location.hash)),
+            `#/collections/works/entries/${author.id}/${collection.id}/edited-title`);
+        assert.equal(await page.evaluate(() => Boolean(window.repoFiles._works['narodna-pjesma']['edited-title.md'])), false);
+        await page.evaluate(() => ArchiveFields.setValue('zbirka', ''));
+        await page.getByText(author.id, { exact: true }).waitFor();
+        const loose = await save();
+        assert.equal(loose.id, first.id);
+        assert.equal(loose.zbirka, '');
+        assert.equal(decodeURIComponent(await page.evaluate(() => location.hash)),
+            `#/collections/works/entries/${author.id}/edited-title`);
+        console.log('Passed: membership edits move source files into and out of collections without changing identity.');
 
         await newEntry('works');
         await page.setViewportSize({ width: 390, height: 844 });
@@ -123,6 +164,38 @@ const root = path.join(__dirname, '..');
         assert.equal(manual.body.trim(), 'Ručno upisan tekst.');
         assert.deepEqual(errors, []);
         console.log('Passed: manual entry on mobile needs only title, author and text; no browser runtime errors.');
+
+        await page.evaluate(id => ArchiveFields.setValue('zbirka', id), collection.id);
+        await page.getByText(`${author.id}/${collection.id}`, { exact: true }).waitFor();
+        await save();
+        const workFilename = (await page.evaluate(() => location.hash)).split('/').pop() + '.md';
+        await page.setViewportSize({ width: 1280, height: 900 });
+        await page.evaluate(() => { location.hash = '#/collections/zbirke'; });
+        await field('Naslov').waitFor({ state: 'detached' });
+        await page.evaluate(route => { location.hash = route; },
+            `#/collections/zbirke/entries/${author.id}/${collection.id}/index`);
+        await field('Naslov zbirke').waitFor();
+        await page.waitForFunction(() => ArchiveFields.getValue('author') === 'isak-samokovlija');
+        await page.evaluate(() => ArchiveFields.setValue('author', 'narodna-pjesma'));
+        await page.getByText(`narodna-pjesma/${collection.id}`, { exact: true }).waitFor();
+        const relocatedCollection = await save();
+        assert.equal(relocatedCollection.id, collection.id);
+        assert.equal(relocatedCollection.permalink, collection.permalink);
+        const movedTree = await page.evaluate(({ id, author, filename }) => ({
+            index: window.repoFiles._works['narodna-pjesma'][id]['index.md'],
+            work: window.repoFiles._works['narodna-pjesma'][id][filename],
+            old: window.repoFiles._works[author][id],
+        }), { id: collection.id, author: author.id, filename: workFilename });
+        assert.ok(movedTree.index);
+        assert.ok(movedTree.work);
+        assert.equal(Object.keys(movedTree.old).length, 0);
+        assert.deepEqual(errors, []);
+        console.log('Passed: changing a collection author moves its index and all contained works together.');
+    } catch (error) {
+        console.error('CMS errors:', errors);
+        console.error('Save state:', await page.evaluate(() => ({ hash: location.hash, data: window.savedData })));
+        console.error((await page.locator('body').innerText()).slice(-5000));
+        throw error;
     } finally {
         await browser.close();
     }

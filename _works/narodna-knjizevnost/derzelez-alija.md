@@ -20,6 +20,7 @@ source_pages: ""
 rights: public-domain
 rights_note: ""
 featured: false
+record_type: "work"
 ---
 Sve na stranu, Boga spomenimo.  
 Sve u slavu Boga velikoga,  

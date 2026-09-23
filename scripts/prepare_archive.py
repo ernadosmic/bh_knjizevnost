@@ -4,22 +4,21 @@ from pathlib import Path
 
 import sync_authors
 import sync_zbirke
-from work_tree import apply_placements, migrate_flat
+from work_tree import apply_placements, migrate_flat, migrate_profiles
 
 
 def prepare(root, migrate=False):
     root = Path(root).resolve()
-    works, authors, collections = (root / name for name in ("_works", "_authors", "_zbirke"))
+    works = authors = collections = root / "_works"
     for module in (sync_authors, sync_zbirke):
         module.ROOT, module.WORKS, module.ZBIRKE = root, works, collections
     sync_authors.AUTHORS = authors
     if migrate:
-        for source, target in migrate_flat(works):
+        for source, target in migrate_profiles(root) + migrate_flat(works):
             print(f"Moved {source.relative_to(root)} -> {target.relative_to(root)}")
     apply_placements(works, authors, collections)
     aliases, names, errors = sync_authors.normalize_authors()
     errors.extend(sync_authors.normalize_works(aliases, names))
-    errors.extend(sync_authors.normalize_zbirke(aliases))
     aliases, collection_errors = sync_zbirke.normalize_zbirke()
     errors.extend(collection_errors)
     errors.extend(sync_zbirke.normalize_work_membership(aliases))

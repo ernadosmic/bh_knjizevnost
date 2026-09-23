@@ -15,6 +15,7 @@ language: hr
 script: latin
 rights: unknown
 featured: false
+record_type: "work"
 ---
 Već nekoliko dana
 u meni mene prati svijetla pjesma ljeta

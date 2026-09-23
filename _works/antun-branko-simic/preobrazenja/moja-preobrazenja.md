@@ -15,6 +15,7 @@ language: hr
 script: latin
 rights: unknown
 featured: false
+record_type: "work"
 ---
 Ja pjevam sebe kad iz crne bezdane i mučne noći
 iznesem blijedo meko lice u kristalno jutro

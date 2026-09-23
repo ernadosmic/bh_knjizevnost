@@ -33,9 +33,9 @@ def page(url):
 def main():
     works = [read_document(p)[0] for p in work_paths(ROOT / "_works")]
     authors = {read_document(p)[0]["id"]: read_document(p)[0]
-               for p in (ROOT / "_authors").glob("*.md")}
+               for p in (ROOT / "_works").glob("*/index.md")}
     index = Links(page("/zbirke/")).links
-    for path in (ROOT / "_zbirke").glob("*.md"):
+    for path in (ROOT / "_works").glob("*/*/index.md"):
         collection, _ = read_document(path)
         members = [w for w in works if w.get("zbirka") == collection["archive_id"]]
         cards = [link for link in Links(page(collection["permalink"])).links

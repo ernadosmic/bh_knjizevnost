@@ -15,6 +15,7 @@ language: hr
 script: latin
 rights: unknown
 featured: false
+record_type: "work"
 ---
 Nevidljive pozaune tuže
 u zapad sunca što se davi u rođenoj krvi
