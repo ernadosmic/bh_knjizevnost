@@ -23,6 +23,8 @@ def main():
         row = f"Row{index:03}"
         if index == 3:
             row = f"*{row}*"
+        if index in (5, 6):
+            row = "- " + row
         if index == 12:
             row += " continuation" * 80
         rows.append(row + ("\n\n" if index % 10 == 0 and not 21 <= index <= 80 else "\n"))
@@ -40,6 +42,9 @@ def main():
         )
 
     document = ET.fromstring(result.stdout)
+    text = " ".join(w.text or "" for w in document.findall(".//{*}word"))
+    assert "- Row005" in text and "- Row006" in text, "PDF must preserve dialogue dashes"
+    assert "\u2022" not in text, "Dialogue must not become PDF bullets"
     pages = document.findall(".//{*}page")
     assert len(pages) > 1, "The fixture must exercise page breaks"
     line_count = 0
@@ -83,7 +88,7 @@ def main():
     assert len(verse_pages) > 1, "Verse indentation must survive page breaks"
     assert line_count > 105, "Wrapped source lines must count as multiple printed lines"
     assert labels == list(range(5, line_count + 1, 5)), "Print every fifth line, continuously across pages"
-    print("Passed: PDF newline indents, spacing, blank-line gaps, wrapping, and continuous labels 5, 10, 15, ...")
+    print("Passed: PDF literal dashes, newline indents, spacing, blank-line gaps, wrapping, and continuous labels 5, 10, 15, ...")
 
 
 if __name__ == "__main__":

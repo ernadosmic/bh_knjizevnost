@@ -4,6 +4,25 @@ require 'kramdown'
 require 'kramdown-parser-gfm'
 
 module WorkParagraphs
+  # Match scripts/literary_markdown.py: dialogue dashes are literal text.
+  def self.literal_dashes(source)
+    fence = nil
+    source.lines.map do |line|
+      content = line.sub(/\A(?: {0,3}>[ \t]?)+/, '').chomp
+      marker = content.match(/\A {0,3}(`{3,}|~{3,})(.*)\z/)
+      if fence
+        if marker && marker[1][0] == fence[0] && marker[1].length >= fence.length && marker[2].strip.empty?
+          fence = nil
+        end
+      elsif marker
+        fence = marker[1]
+      elsif !content.match?(/\A {0,3}(?:-[ \t]*){3,}\z/)
+        line = line.sub(/\A((?: {0,3}>[ \t]?)* {0,3})-(?=[ \t]|$)/) { "#{Regexp.last_match(1)}\\-" }
+      end
+      line
+    end.join
+  end
+
   def self.split_lines(children)
     lines = [[]]
     children.each do |child|
@@ -24,7 +43,7 @@ module WorkParagraphs
   end
 
   def self.render(source, poetry: false, options: {})
-    document = Kramdown::Document.new(source, **options.merge(input: 'GFM', hard_wrap: true))
+    document = Kramdown::Document.new(literal_dashes(source), **options.merge(input: 'GFM', hard_wrap: true))
     after_blank = false
     document.root.children = document.root.children.flat_map do |block|
       separated = after_blank

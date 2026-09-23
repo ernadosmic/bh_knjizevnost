@@ -81,7 +81,11 @@ starts a new paragraph with a 1.3 em gap and a 1.5 em first-line indent. The ope
 paragraph and paragraphs after headings stay flush left. Printed lines are numbered
 in the left margin at 5, 10, 15, and so on, continuously across pages.
 Let the editor visually wrap long lines; insert a newline only where you want a new
-passage. Headings, lists, quotations, and code keep Markdown syntax.
+passage. A line beginning with `- ` keeps its literal dash on the website and in
+PDF/EPUB downloads; it is not converted into a bullet. This preserves dialogue
+and dash-led literary text without requiring manual escaping. Use `* ` or `+ `
+for an intentional bulleted list. Headings, numbered lists, quotations, code,
+and horizontal separators keep their Markdown syntax.
 
 For verse inside prose, use a fenced `verse` block to preserve its line breaks.
 PDFs indent each verse line just like prose source lines, including across pages:

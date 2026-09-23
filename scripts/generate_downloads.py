@@ -11,6 +11,7 @@ from pathlib import Path
 
 import yaml
 from work_tree import work_paths
+from literary_markdown import literal_dashes
 
 ROOT = Path(__file__).resolve().parents[1]
 WORKS = ROOT / "_works"
@@ -29,7 +30,7 @@ def read_document(path: Path) -> tuple[dict, str]:
 
 
 def run_pandoc(input_path: Path, output_path: Path, metadata: dict, pdf: bool) -> None:
-    command = ["pandoc", str(input_path), "--from=markdown+hard_line_breaks", "-o", str(output_path), "--standalone"]
+    command = ["pandoc", "--from=markdown+hard_line_breaks", "-o", str(output_path), "--standalone"]
     command += ["--lua-filter", str(PARAGRAPH_FILTER), "--metadata", f"work-type={metadata.get('type', '')}"]
     command += ["--metadata", f"title={metadata['title']}", "--metadata", f"author={metadata['author']}"]
     if metadata.get("language"):
@@ -44,7 +45,8 @@ def run_pandoc(input_path: Path, output_path: Path, metadata: dict, pdf: bool) -
             # Start counting after the title; leave the opening paragraph flush left.
             "-V", r"include-before=\linenumbers\makeatletter\@afterindentfalse\@afterheading\makeatother",
         ]
-    subprocess.run(command, cwd=ROOT, check=True)
+    subprocess.run(command, input=literal_dashes(input_path.read_text(encoding="utf-8")),
+                   text=True, encoding="utf-8", cwd=ROOT, check=True)
 
 
 def main() -> None:
