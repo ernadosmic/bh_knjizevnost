@@ -44,7 +44,19 @@ collections:
     description: "Unesi naslov, odaberi ili dodaj autora i napiši tekst. Ostale podatke možeš dopuniti kasnije."
     folder: "_works"
     create: true
-    slug: "{{id}}-{{slug}}"
+    slug: "{{title}}"
+    path: "{{author}}/{{zbirka}}/{{slug}}"
+    media_folder: "/assets/uploads"
+    public_folder: "/assets/uploads"
+    nested:
+      depth: 3
+      subfolders: false
+      summary: "{{title}}"
+    meta:
+      path:
+        widget: "work-location"
+        label: "Mapa djela"
+        required: false
     identifier_field: "title"
     summary: "{{title}} — {{author}} ({{year}})"
     sortable_fields: ["title", "year", "author"]

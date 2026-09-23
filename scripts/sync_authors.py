@@ -15,6 +15,7 @@ from pathlib import Path
 import yaml
 
 from new_work import slugify, yaml_quote
+from work_tree import work_paths
 
 ROOT = Path(__file__).resolve().parent.parent
 WORKS = ROOT / "_works"
@@ -74,11 +75,9 @@ def rewrite_front_matter(path, updates):
         if key not in seen:
             output.append("%s: %s" % (key, value))
 
-    path.write_text(
-        "---\n" + "\n".join(output) + "\n---" + body,
-        encoding="utf-8",
-        newline="\n",
-    )
+    rendered_document = "---\n" + "\n".join(output) + "\n---" + body
+    if path.read_text(encoding="utf-8") != rendered_document:
+        path.write_text(rendered_document, encoding="utf-8", newline="\n")
 
 
 def create_author(author_id, name):
@@ -168,7 +167,7 @@ def normalize_authors():
 def normalize_works(aliases, canonical_names):
     problems = []
 
-    for work_path in sorted(WORKS.glob("*.md")):
+    for work_path in work_paths(WORKS):
         data = read_front_matter(work_path)
         author_id = str(data.get("author") or "").strip()
         author_name = str(data.get("author_name") or "").strip()
@@ -213,7 +212,7 @@ def normalize_works(aliases, canonical_names):
         updates = {
             "author": desired_id,
             "author_name": canonical_name,
-            "permalink": "/djela/%s/%s/" % (desired_id, slug),
+            "permalink": str(data.get("permalink") or "/djela/%s/%s/" % (desired_id, slug)),
         }
 
         if (

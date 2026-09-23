@@ -75,6 +75,9 @@ exclude:
   - README.md
   - ARCHIVE_FORMAT.md
   - LICENSE.md
+  - node_modules
+  - package.json
+  - package-lock.json
 plugins:
   - jekyll-seo-tag
   - jekyll-sitemap

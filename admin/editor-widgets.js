@@ -52,4 +52,64 @@
     });
 
     CMS.registerWidget("author-picker", AuthorPicker);
+
+    // Use Decap's native meta.path so a membership change moves the source file
+    // in the same save. The work's filename is retained for existing entries.
+    const WorkLocation = createClass({
+        getInitialState() { return { folder: this.props.value || "" }; },
+        shouldComponentUpdate() { return true; },
+        componentDidMount() {
+            this.active = true;
+            this.changed = () => window.queueMicrotask(() => {
+                if (this.active) this.syncFolder();
+            });
+            window.addEventListener("archive-field-change", this.changed);
+            window.queueMicrotask(() => {
+                if (!this.active) return;
+                // A manually moved file may still contain old cached membership.
+                // Read its actual folder before populating the editor controls.
+                const folder = String(this.props.value || "").replace(/^\/+|\/+$/g, "");
+                if (!this.props.entry.get("newRecord") && folder) {
+                    const [author, collection = ""] = folder.split("/");
+                    const fields = window.ArchiveFields;
+                    if (fields.getValue("author") !== author) fields.setValue("author", author);
+                    if ((fields.getValue("zbirka") || "") !== collection) {
+                        fields.setValue("zbirka", collection);
+                        fields.setValue("zbirka_order", "");
+                    }
+                }
+                this.changed();
+            });
+        },
+        componentWillUnmount() {
+            this.active = false;
+            window.removeEventListener("archive-field-change", this.changed);
+        },
+        syncFolder() {
+            const fields = window.ArchiveFields;
+            let author = fields.getValue("author");
+            if (author && typeof author === "object") {
+                const name = read(author, "name") || "";
+                let id = read(author, "id") || window.slugify(name);
+                if (!id && name.trim()) {
+                    id = window.newArchiveId("autor");
+                    fields.setValue("author", { name, id });
+                }
+                author = id;
+            }
+            if (!author) return;
+            const folder = [author, fields.getValue("zbirka")].filter(Boolean).join("/");
+            if (folder !== this.state.folder) this.setState({ folder });
+            if (this.props.entry.get("newRecord") && this.props.value) {
+                this.props.onChange("");
+            } else if (!this.props.entry.get("newRecord") && folder !== this.props.value) {
+                this.props.onChange(folder);
+            }
+        },
+        render() {
+            return h("p", { className: "editor-field-note" },
+                this.state.folder || "Mapa će se odabrati automatski uz autora i zbirku.");
+        },
+    });
+    CMS.registerWidget("work-location", WorkLocation);
 }());

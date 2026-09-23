@@ -1,6 +1,7 @@
 """Check collection contents, counts, and work backlinks in the built site."""
 from html.parser import HTMLParser
 from generate_downloads import ROOT, read_document
+from work_tree import work_paths
 
 
 class Links(HTMLParser):
@@ -30,7 +31,7 @@ def page(url):
 
 
 def main():
-    works = [read_document(p)[0] for p in (ROOT / "_works").glob("*.md")]
+    works = [read_document(p)[0] for p in work_paths(ROOT / "_works")]
     authors = {read_document(p)[0]["id"]: read_document(p)[0]
                for p in (ROOT / "_authors").glob("*.md")}
     index = Links(page("/zbirke/")).links

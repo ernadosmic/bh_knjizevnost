@@ -10,6 +10,7 @@ import tempfile
 from pathlib import Path
 
 import yaml
+from work_tree import work_paths
 
 ROOT = Path(__file__).resolve().parents[1]
 WORKS = ROOT / "_works"
@@ -47,6 +48,8 @@ def run_pandoc(input_path: Path, output_path: Path, metadata: dict, pdf: bool) -
 
 
 def main() -> None:
+    from prepare_archive import prepare
+    prepare(ROOT)
     if not shutil.which("pandoc"):
         raise SystemExit("Pandoc is required to generate downloads. Install it and retry.")
     author_data = {}
@@ -56,7 +59,7 @@ def main() -> None:
     PDF_DIR.mkdir(parents=True, exist_ok=True)
     EPUB_DIR.mkdir(parents=True, exist_ok=True)
     manifest = []
-    for path in sorted(WORKS.glob("*.md")):
+    for path in work_paths(WORKS):
         metadata, body = read_document(path)
         author = author_data.get(metadata.get("author", ""), {})
         author_name = author.get("name", metadata.get("author", ""))
@@ -77,6 +80,7 @@ def main() -> None:
             run_pandoc(source, EPUB_DIR / f"{filename}.epub", download_metadata, False)
         manifest.append({
             "id": metadata["id"],
+            "source_path": path.relative_to(ROOT).as_posix(),
             "title": metadata["title"],
             "author": author_name,
             "author_id": metadata.get("author", ""),

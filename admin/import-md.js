@@ -6,6 +6,9 @@
     const { CMS, h, createClass } = window;
     const controls = new Map();
     window.ArchiveFields = {
+        getValue(name) {
+            return controls.get(name)?.props.value;
+        },
         setValue(name, value) {
             const control = controls.get(name);
             if (control) control.importValue(value);
@@ -24,6 +27,9 @@
             },
             componentDidUpdate(previousProps) {
                 if (previousProps.field !== this.props.field) this.registerControl();
+                if (previousProps.value !== this.props.value && this.props.field.get("import_target")) {
+                    window.dispatchEvent(new CustomEvent("archive-field-change"));
+                }
             },
             registerControl() {
                 if (controls.get(this.importFieldName) === this) controls.delete(this.importFieldName);

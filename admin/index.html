@@ -14,8 +14,8 @@
     <script src="https://unpkg.com/decap-cms@3.17.0-beta.0/dist/decap-cms.js"></script>
     <script src="https://unpkg.com/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
     <script src="./collection-works.js"></script>
-    <script src="./editor-widgets.js"></script>
-    <script src="./import-md.js?v=3"></script>
+    <script src="./editor-widgets.js?v=2"></script>
+    <script src="./import-md.js?v=4"></script>
     <script src="./site-publish.js"></script>
     <script>
         const { CMS, initCMS: init } = window;
@@ -231,13 +231,14 @@
                     return data
                         .set("id", id)
                         .set("author", author)
+                        .set("zbirka", clean(data.get("zbirka")))
                         .delete("new_author")
                         .set("script", !data.get("script") || data.get("script") === "auto"
                             ? detectScript(String(data.get("body") || "")) : data.get("script"))
                         .set("created_at", data.get("created_at") || new Date().toISOString())
                         .set("slug", slug)
                         .set("archive_id", id)
-                        .set("permalink", `/djela/${author}/${slug}/`);
+                        .set("permalink", clean(data.get("permalink")) || `/djela/${author}/${slug}/`);
                 }
 
                 if (collectionName === "zbirke") {

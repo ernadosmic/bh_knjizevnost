@@ -19,6 +19,10 @@ import argparse
 import re
 import sys
 import unicodedata
+import uuid
+
+import yaml
+from work_tree import work_paths, unique_path
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -55,22 +59,6 @@ def yaml_quote(value):
     return '"%s"' % str(value).replace("\\", "\\\\").replace('"', '\\"')
 
 
-def author_initials(author_id):
-    parts = [p for p in author_id.split("-") if p]
-    return "".join(p[0] for p in parts).upper()[:2] or "XX"
-
-
-def next_archive_id(author_id):
-    """Allocate the next free {INITIALS}{NNNN} id for this author."""
-    prefix = author_initials(author_id)
-    highest = 0
-    for path in WORKS.glob("*.md"):
-        match = re.match(r"^%s(\d{4})-" % re.escape(prefix), path.name)
-        if match:
-            highest = max(highest, int(match.group(1)))
-    return "%s%04d" % (prefix, highest + 1)
-
-
 def ensure_absent(path, force):
     if path.exists() and not force:
         sys.exit("Refusing to overwrite existing file: %s\nPass --force to replace it."
@@ -96,7 +84,7 @@ def existing_work_with_permalink(permalink):
     sharing one would silently fight over the same page.
     """
     wanted = permalink.strip("/")
-    for path in sorted(WORKS.glob("*.md")):
+    for path in work_paths(WORKS):
         for line in front_matter_lines(path):
             key, _, value = line.partition(":")
             if key.strip() == "permalink" and value.strip().strip('"').strip("/") == wanted:
@@ -111,7 +99,8 @@ def create_work(args):
                  "  python scripts/new_work.py author --name \"...\""
                  % author_file.relative_to(ROOT))
 
-    slug = args.slug or slugify(args.title)
+    archive_id = args.id or "D-" + str(uuid.uuid4())
+    slug = args.slug or (slugify(args.title) or "djelo") + "-" + archive_id.lower()
     if not slug:
         sys.exit("Could not derive a slug from the title; pass --slug explicitly.")
 
@@ -121,7 +110,6 @@ def create_work(args):
         sys.exit("%s already publishes %s.\nUse --slug to pick a different URL, "
                  "or --force to overwrite." % (clash.relative_to(ROOT), permalink))
 
-    archive_id = args.id or next_archive_id(args.author)
 
     # `id` is what the archive format calls the permanent identifier, but Jekyll
     # reserves `id` on collection documents, so `archive_id` carries it in
@@ -133,6 +121,7 @@ def create_work(args):
         ("slug", yaml_quote(slug)),
         ("permalink", permalink),
         ("author", yaml_quote(args.author)),
+        ("zbirka", yaml_quote(args.collection or "")),
         ("year", args.year if args.year is not None else '""'),
         ("language", yaml_quote(args.language)),
         ("script", yaml_quote(args.script)),
@@ -161,7 +150,12 @@ def create_work(args):
         "",
     ]
 
-    path = WORKS / ("%s-%s.md" % (archive_id, slug))
+    directory = WORKS / args.author
+    if args.collection:
+        directory /= args.collection
+    directory.resolve().relative_to(WORKS.resolve())
+    directory.mkdir(parents=True, exist_ok=True)
+    path = unique_path(directory, slugify(args.title) or "djelo")
     ensure_absent(path, args.force)
     path.write_text("\n".join(lines), encoding="utf-8", newline="\n")
     print("Wrote %s" % path.relative_to(ROOT))
@@ -212,6 +206,7 @@ def main():
     work = sub.add_parser("work", help="scaffold a work in _works/")
     work.add_argument("--title", required=True)
     work.add_argument("--author", required=True, help="author id, e.g. petar-kocic")
+    work.add_argument("--collection", help="optional collection folder ID")
     work.add_argument("--year", type=int)
     work.add_argument("--type", choices=TYPES, default="short-story")
     work.add_argument("--language", choices=LANGUAGES, default="sr")
@@ -225,7 +220,7 @@ def main():
     work.add_argument("--source-pages", dest="source_pages")
     work.add_argument("--description")
     work.add_argument("--slug", help="default: derived from the title")
-    work.add_argument("--id", help="default: next free id for this author")
+    work.add_argument("--id", help="default: automatic UUID, independent of the filename")
     work.add_argument("--featured", action="store_true")
     work.add_argument("--force", action="store_true")
     work.set_defaults(func=create_work)

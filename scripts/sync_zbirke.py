@@ -4,6 +4,7 @@
 from pathlib import Path
 
 from sync_authors import read_front_matter, rewrite_front_matter, safe_identifier
+from work_tree import work_paths
 
 ROOT = Path(__file__).resolve().parent.parent
 WORKS = ROOT / "_works"
@@ -73,7 +74,7 @@ def normalize_work_membership(aliases):
     used_orders = {}
     pending = []
 
-    for work_path in sorted(WORKS.glob("*.md")):
+    for work_path in work_paths(WORKS):
         data = read_front_matter(work_path)
         zbirka_id = str(data.get("zbirka") or "").strip()
         if not zbirka_id:
