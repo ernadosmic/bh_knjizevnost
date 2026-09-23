@@ -1,15 +1,18 @@
 ---
 id: ABS0001
 archive_id: ABS0001
-title: Opomena
 slug: opomena
 permalink: /djela/antun-branko-simic/opomena/
-author: antun-branko-simic
+created_at: 2026-09-23T08:59:41.861Z
 author_name: Antun Branko Šimić
+title: Opomena
+author: antun-branko-simic
+type: poetry
+zbirka: preobrazenja
+zbirka_order: ""
 year: 1920
 language: hr
 script: latin
-type: poetry
 rights: unknown
 featured: false
 ---
