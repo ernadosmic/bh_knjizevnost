@@ -41,7 +41,7 @@ collections:
   - name: "works"
     label: "DJELA"
     label_singular: "Djelo"
-    description: "Unos književnog djela. Slug, javni URL i arhivski ID popunjavaju se automatski."
+    description: "Unesi naslov, odaberi ili dodaj autora i napiši tekst. Ostale podatke možeš dopuniti kasnije."
     folder: "_works"
     create: true
     slug: "{{id}}-{{slug}}"
@@ -56,51 +56,27 @@ collections:
         widget: "import-md"
         import_kind: "work"
         required: false
-        hint: "Opcionalno. Odaberi postojeću .md datoteku; front matter i tekst će biti uvezeni pri spremanju."
-      - label: "Trajni ID"
-        name: "id"
-        widget: "string"
-        hint: "Trajni identifikator, npr. PK0002. Nakon objave ga ne mijenjati."
+        hint: "Odaberi datoteku da automatski popuniš obrazac."
+      - { label: "ID", name: "id", widget: "hidden", default: "" }
       - { label: "Arhivski ID", name: "archive_id", widget: "hidden", default: "" }
-      - { label: "Naslov", name: "title", widget: "string" }
       - { label: "Slug", name: "slug", widget: "hidden", default: "" }
       - { label: "Javni URL", name: "permalink", widget: "hidden", default: "" }
+      - { label: "Datum unosa", name: "created_at", widget: "hidden", default: "" }
+      - { label: "Novi autor", name: "new_author", widget: "hidden", default: "" }
+      - { label: "Ime autora", name: "author_name", widget: "hidden", default: "" }
+      - { label: "Naslov", name: "title", import_target: true, widget: "string" }
       - label: "Autor"
         name: "author"
-        widget: "relation"
+        import_target: true
+        widget: "author-picker"
         collection: "authors"
         value_field: "id"
         search_fields: ["name", "sort_name"]
         display_fields: ["name", "birth_year", "death_year"]
-        required: false
-        hint: "Odaberi postojećeg autora. Ako ga nema, ostavi prazno i upiši ime u polje Novi autor."
-      - label: "Novi autor"
-        name: "new_author"
-        widget: "string"
-        required: false
-        hint: "Koristi samo ako autor još ne postoji. Autor će automatski biti kreiran nakon spremanja djela."
-      - { label: "Ime autora", name: "author_name", widget: "hidden", default: "" }
-      - { label: "Godina", name: "year", widget: "number", required: false, value_type: "int" }
-      - label: "Jezik"
-        name: "language"
-        widget: "select"
-        options:
-          - { label: "Bosanski", value: "bs" }
-          - { label: "Hrvatski", value: "hr" }
-          - { label: "Srpski", value: "sr" }
-          - { label: "Njemački", value: "de" }
-          - { label: "Drugi", value: "other" }
-        default: "sr"
-      - label: "Pismo"
-        name: "script"
-        widget: "select"
-        options:
-          - { label: "Latinica", value: "latin" }
-          - { label: "Ćirilica", value: "cyrillic" }
-          - { label: "Drugo", value: "other" }
-        default: "latin"
+        required: true
       - label: "Vrsta djela"
         name: "type"
+        import_target: true
         widget: "select"
         options:
           - { label: "Pripovijetka", value: "short-story" }
@@ -112,8 +88,15 @@ collections:
           - { label: "Ostalo", value: "other" }
         default: "short-story"
         hint: "Ovo je glavna oznaka koja se prikazuje uz naslov djela i na stranici djela."
+      - label: "Tekst djela"
+        name: "body"
+        import_target: true
+        widget: "markdown"
+        buttons: ["bold", "italic", "link", "heading-two", "quote", "bulleted-list", "numbered-list"]
+        modes: ["rich_text", "raw"]
       - label: "Zbirka"
         name: "zbirka"
+        import_target: true
         widget: "work-collection"
         collection: "zbirke"
         value_field: "id"
@@ -123,23 +106,48 @@ collections:
         hint: "Opcionalno. Odaberi zbirku kojoj ovo djelo pripada."
       - label: "Redni broj u zbirci"
         name: "zbirka_order"
+        import_target: true
         widget: "number"
         required: false
         value_type: "int"
         min: 1
-        hint: "Opcionalno. Koristi za redoslijed djela unutar zbirke."
+        hint: "Ostavi prazno za automatsko dodavanje na kraj zbirke. Upiši broj samo za poseban redoslijed."
+      - { label: "Godina", name: "year", import_target: true, widget: "number", required: false, value_type: "int" }
+      - label: "Jezik"
+        name: "language"
+        import_target: true
+        widget: "select"
+        options:
+          - { label: "Bosanski", value: "bs" }
+          - { label: "Hrvatski", value: "hr" }
+          - { label: "Srpski", value: "sr" }
+          - { label: "Njemački", value: "de" }
+          - { label: "Drugi", value: "other" }
+        default: "sr"
+      - label: "Pismo"
+        name: "script"
+        import_target: true
+        widget: "select"
+        options:
+          - { label: "Prepoznaj iz teksta", value: "auto" }
+          - { label: "Latinica", value: "latin" }
+          - { label: "Ćirilica", value: "cyrillic" }
+          - { label: "Drugo", value: "other" }
+        default: "auto"
+      - { label: "Kratak opis", name: "description", import_target: true, widget: "text", required: false }
       - label: "Dodatne žanrovske oznake"
         name: "genres"
+        import_target: true
         widget: "list"
         required: false
         hint: "Opcionalne dodatne oznake. Glavna vrsta djela je polje iznad."
-      - { label: "Književni period", name: "period", widget: "string", required: false }
-      - { label: "Kratak opis", name: "description", widget: "text", required: false }
-      - { label: "Izvor", name: "source", widget: "string", required: false }
-      - { label: "Izdanje", name: "edition", widget: "string", required: false }
-      - { label: "Stranice izvora", name: "source_pages", widget: "string", required: false }
+      - { label: "Književni period", name: "period", import_target: true, widget: "string", required: false }
+      - { label: "Izvor", name: "source", import_target: true, widget: "string", required: false }
+      - { label: "Izdanje", name: "edition", import_target: true, widget: "string", required: false }
+      - { label: "Stranice izvora", name: "source_pages", import_target: true, widget: "string", required: false }
       - label: "Status prava"
         name: "rights"
+        import_target: true
         widget: "select"
         options:
           - { label: "Javno vlasništvo", value: "public-domain" }
@@ -147,13 +155,8 @@ collections:
           - { label: "Ograničena prava", value: "restricted" }
           - { label: "Status nije utvrđen", value: "unknown" }
         default: "unknown"
-      - { label: "Napomena o pravima", name: "rights_note", widget: "text", required: false }
-      - { label: "Istaknuto djelo", name: "featured", widget: "boolean", default: false }
-      - label: "Tekst djela"
-        name: "body"
-        widget: "markdown"
-        buttons: ["bold", "italic", "link", "heading-two", "quote", "bulleted-list", "numbered-list"]
-        modes: ["rich_text", "raw"]
+      - { label: "Napomena o pravima", name: "rights_note", import_target: true, widget: "text", required: false }
+      - { label: "Istaknuto djelo", name: "featured", import_target: true, widget: "boolean", default: false }
 
   - name: "zbirke"
     label: "ZBIRKE"
@@ -168,19 +171,7 @@ collections:
     editor:
       preview: false
     fields:
-      - label: "Djela u zbirci"
-        name: "id"
-        widget: "collection-works"
-        default: ""
-        required: false
-        collection: "works"
-        value_field: "{{slug}}"
-        search_fields: ["title", "id", "author"]
-        display_fields: ["title", "id"]
-      - { label: "Arhivski ID", name: "archive_id", widget: "hidden", default: "" }
       - { label: "Naslov zbirke", name: "title", widget: "string" }
-      - { label: "Slug", name: "slug", widget: "hidden", default: "" }
-      - { label: "Javni URL", name: "permalink", widget: "hidden", default: "" }
       - label: "Autor"
         name: "author"
         widget: "relation"
@@ -206,14 +197,26 @@ collections:
         widget: "markdown"
         required: false
         modes: ["rich_text", "raw"]
+      - label: "Djela u zbirci"
+        name: "id"
+        widget: "collection-works"
+        default: ""
+        required: false
+        collection: "works"
+        value_field: "{{slug}}"
+        search_fields: ["title", "id", "author"]
+        display_fields: ["title", "id"]
+      - { label: "Arhivski ID", name: "archive_id", widget: "hidden", default: "" }
+      - { label: "Slug", name: "slug", widget: "hidden", default: "" }
+      - { label: "Javni URL", name: "permalink", widget: "hidden", default: "" }
 
   - name: "authors"
     label: "AUTORI"
     label_singular: "Autor"
-    description: "Autorski zapis. ID, slug, javni URL i naziv za sortiranje generiraju se automatski."
+    description: "Uredi ime, biografiju i podatke o autoru."
     folder: "_authors"
     create: true
-    slug: "{{slug}}"
+    slug: "{{id}}"
     identifier_field: "name"
     summary: "{{name}}"
     sortable_fields: ["name", "birth_year", "death_year"]
@@ -228,14 +231,15 @@ collections:
         hint: "Opcionalno. Odaberi postojeću .md datoteku sa podacima o autoru i biografijom."
       - { label: "ID", name: "id", widget: "hidden", default: "" }
       - { label: "Arhivski ID", name: "archive_id", widget: "hidden", default: "" }
-      - { label: "Ime i prezime", name: "name", widget: "string" }
+      - { label: "Ime i prezime", name: "name", import_target: true, widget: "string" }
       - { label: "Javni URL", name: "permalink", widget: "hidden", default: "" }
       - { label: "Naziv za sortiranje", name: "sort_name", widget: "hidden", default: "" }
-      - { label: "Godina rođenja", name: "birth_year", widget: "number", required: false, value_type: "int" }
-      - { label: "Godina smrti", name: "death_year", widget: "number", required: false, value_type: "int" }
-      - { label: "Fotografija", name: "photo", widget: "image", required: false }
+      - { label: "Godina rođenja", name: "birth_year", import_target: true, widget: "number", required: false, value_type: "int" }
+      - { label: "Godina smrti", name: "death_year", import_target: true, widget: "number", required: false, value_type: "int" }
+      - { label: "Fotografija", name: "photo", import_target: true, widget: "image", required: false }
       - label: "Biografija"
         name: "body"
+        import_target: true
         widget: "markdown"
         required: false
         modes: ["rich_text", "raw"]

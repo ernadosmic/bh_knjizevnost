@@ -60,7 +60,7 @@
         },
         componentDidMount() {
             if (this.state.assignment !== null) {
-                this.props.onChange(this.state.assignment);
+                this.changeCollection(this.state.assignment);
                 // Apply the link once. Reloading must not undo later edits.
                 const url = new URL(window.location.href);
                 const [route, query] = url.hash.split("?");
@@ -71,10 +71,21 @@
                 this.setState({ assignment: null });
             }
         },
+        changeCollection(value) {
+            if (value !== this.props.value) {
+                // A position belongs to its old collection. Append automatically
+                // when moving a work, after the sibling field has mounted.
+                window.queueMicrotask(() => {
+                    if (window.ArchiveFields) window.ArchiveFields.setValue("zbirka_order", "");
+                });
+            }
+            this.props.onChange(value);
+        },
         shouldComponentUpdate() { return true; },
         render() {
             return h(Relation, {
                 ...this.props,
+                onChange: this.changeCollection,
                 value: this.state.assignment !== null ? this.state.assignment : this.props.value,
                 field: this.props.field.set("widget", "relation"),
                 queryHits: this.props.queryHits || [],

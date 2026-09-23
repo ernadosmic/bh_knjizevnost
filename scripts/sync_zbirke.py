@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Normalize literary collection slugs and work references."""
+"""Keep collection identities stable and assign positions to newly added works."""
 
 from pathlib import Path
 
-from new_work import slugify
-from sync_authors import read_front_matter, rewrite_front_matter
+from sync_authors import read_front_matter, rewrite_front_matter, safe_identifier
 
 ROOT = Path(__file__).resolve().parent.parent
 WORKS = ROOT / "_works"
@@ -24,9 +23,10 @@ def normalize_zbirke():
             problems.append("%s: missing collection title" % original_path.name)
             continue
 
-        desired_id = slugify(title)
-        if not desired_id:
-            problems.append("%s: could not derive collection slug" % original_path.name)
+        desired_id = str(data.get("id") or data.get("archive_id") or original_path.stem).strip()
+        public_slug = str(data.get("slug") or desired_id).strip()
+        if not safe_identifier(desired_id) or not safe_identifier(public_slug):
+            problems.append("%s: invalid collection identifier" % original_path.name)
             continue
 
         old_ids = {
@@ -50,8 +50,8 @@ def normalize_zbirke():
             {
                 "id": desired_id,
                 "archive_id": desired_id,
-                "slug": desired_id,
-                "permalink": "/zbirke/%s/" % desired_id,
+                "slug": public_slug,
+                "permalink": "/zbirke/%s/" % public_slug,
             },
         )
 
@@ -71,6 +71,7 @@ def normalize_zbirke():
 def normalize_work_membership(aliases):
     problems = []
     used_orders = {}
+    pending = []
 
     for work_path in sorted(WORKS.glob("*.md")):
         data = read_front_matter(work_path)
@@ -80,7 +81,7 @@ def normalize_work_membership(aliases):
 
         desired_id = aliases.get(zbirka_id, zbirka_id)
         zbirka_path = ZBIRKE / ("%s.md" % desired_id)
-        if not zbirka_path.exists():
+        if not safe_identifier(desired_id) or not zbirka_path.exists():
             problems.append(
                 "%s: collection %s does not exist" % (work_path.name, desired_id)
             )
@@ -92,6 +93,7 @@ def normalize_work_membership(aliases):
 
         order = data.get("zbirka_order")
         if order in (None, ""):
+            pending.append((str(data.get("created_at") or ""), work_path, desired_id))
             continue
         try:
             order_number = int(order)
@@ -110,6 +112,18 @@ def normalize_work_membership(aliases):
             )
         else:
             used_orders[key] = work_path.name
+
+    # Collect explicit positions first, then append new works in creation order.
+    # This prevents collisions with positions found later in the directory.
+    if not problems:
+        highest = {}
+        for collection_id, number in used_orders:
+            highest[collection_id] = max(highest.get(collection_id, 0), number)
+        for _, work_path, collection_id in sorted(pending):
+            number = highest.get(collection_id, 0) + 1
+            highest[collection_id] = number
+            rewrite_front_matter(work_path, {"zbirka_order": number})
+            print("Assigned position %s to %s" % (number, work_path.relative_to(ROOT)))
 
     return problems
 

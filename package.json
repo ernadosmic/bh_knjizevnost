@@ -1,0 +1,13 @@
+{
+  "name": "bh-knjizevnost-editor-checks",
+  "private": true,
+  "scripts": {
+    "test": "node --test scripts/editor-data.test.cjs",
+    "test:editor": "node scripts/check_editor.cjs"
+  },
+  "devDependencies": {
+    "immutable": "4.3.7",
+    "js-yaml": "4.1.1",
+    "playwright": "1.63.0"
+  }
+}

@@ -118,8 +118,9 @@
 
     CMS.registerEventListener({
         name: "postSave",
-        handler: ({ collection }) => {
-            if (collection && collection.get("name") === "release") {
+        handler: ({ entry, collection }) => {
+            const name = (collection && collection.get("name")) || (entry && entry.get("collection"));
+            if (name === "release") {
                 window.dispatchEvent(new CustomEvent("site-wide-publish-saved"));
             }
         },

@@ -4,9 +4,61 @@
  */
 (function () {
     const { CMS, h, createClass } = window;
+    const controls = new Map();
+    window.ArchiveFields = {
+        setValue(name, value) {
+            const control = controls.get(name);
+            if (control) control.importValue(value);
+        },
+    };
+
+    // Each field updates through Decap's own onChange callback, which also
+    // clears validation errors. Keep its built-in control and validation.
+    ["string", "text", "number", "select", "relation", "work-collection", "author-picker",
+        "list", "boolean", "markdown", "image"].forEach((name) => {
+        const widget = CMS.getWidget(name);
+        const Control = createClass({
+            getInitialState() { return { importRevision: 0 }; },
+            componentDidMount() {
+                this.registerControl();
+            },
+            componentDidUpdate(previousProps) {
+                if (previousProps.field !== this.props.field) this.registerControl();
+            },
+            registerControl() {
+                if (controls.get(this.importFieldName) === this) controls.delete(this.importFieldName);
+                this.importFieldName = this.props.field.get("name");
+                if (this.props.field.get("import_target")) {
+                    controls.set(this.importFieldName, this);
+                }
+            },
+            componentWillUnmount() {
+                const fieldName = this.importFieldName;
+                if (controls.get(fieldName) === this) controls.delete(fieldName);
+            },
+            shouldComponentUpdate() { return true; },
+            importValue(value) {
+                this.props.onChange(value);
+                // Stateful editors (notably Markdown) must reload their
+                // internal document when a file replaces the field value.
+                this.setState({ importRevision: this.state.importRevision + 1 });
+            },
+            isValid() {
+                return this.control && this.control.isValid ? this.control.isValid() : true;
+            },
+            render() {
+                return h(widget.control, {
+                    ...this.props,
+                    key: this.state.importRevision,
+                    ref: (control) => { this.control = control; },
+                });
+            },
+        });
+        CMS.registerWidget(name, Control, widget.preview, widget.schema);
+    });
 
     function parseMarkdownFile(text, filename) {
-        const normalized = String(text || "").replace(/\r\n/g, "\n");
+        const normalized = String(text || "").replace(/^\uFEFF/, "").replace(/\r\n/g, "\n");
         const match = normalized.match(/^---\s*\n([\s\S]*?)\n---\s*\n?([\s\S]*)$/);
         let frontmatter = {};
         let body = normalized;
@@ -17,6 +69,15 @@
             if (typeof frontmatter !== "object" || Array.isArray(frontmatter)) {
                 throw new Error("YAML front matter mora biti objekt sa poljima.");
             }
+        }
+
+        if (!frontmatter.title && !frontmatter.name) {
+            const heading = body.match(/^\s*#\s+(.+?)\s*#*\s*\n/);
+            frontmatter.title = heading ? heading[1] : filename
+                .replace(/\.(md|markdown)$/i, "")
+                .replace(/^[a-z]{1,10}\d{2,10}[-_]/i, "")
+                .replace(/[-_]+/g, " ").trim();
+            if (heading) body = body.slice(heading[0].length);
         }
 
         return {
@@ -31,12 +92,11 @@
         const rows = [];
 
         if (kind === "author") {
-            rows.push(["Ime", fm.name || "(nije navedeno)"]);
+            rows.push(["Ime", fm.name || fm.title || "(nije navedeno)"]);
             if (fm.birth_year) rows.push(["Rođen", fm.birth_year]);
             if (fm.death_year) rows.push(["Umro", fm.death_year]);
         } else {
             rows.push(["Naslov", fm.title || "(nije naveden)"]);
-            rows.push(["ID", fm.id || fm.archive_id || "(nije naveden)"]);
             rows.push(["Autor", fm.author_name || fm.author || "(nije naveden)"]);
             if (fm.type) rows.push(["Vrsta", fm.type]);
         }
@@ -56,7 +116,12 @@
             };
         },
 
+        componentWillUnmount() {
+            this.readVersion = (this.readVersion || 0) + 1;
+        },
+
         async readFile(file) {
+            const version = this.readVersion = (this.readVersion || 0) + 1;
             this.setState({ error: "" });
 
             if (!file) return;
@@ -69,9 +134,23 @@
 
             try {
                 const text = await file.text();
+                if (version !== this.readVersion) return;
                 const payload = parseMarkdownFile(text, file.name);
-                this.props.onChange(JSON.stringify(payload));
+                const kind = this.props.field.get("import_kind") || "work";
+                const data = this.props.entry.get("data");
+                const imported = window.applyMarkdownImport(
+                    data.clear().set("import_md", JSON.stringify(payload)),
+                    kind === "author" ? "authors" : "works"
+                );
+                imported.forEach((value, name) => {
+                    const control = controls.get(name);
+                    if (control) control.importValue(value);
+                });
+                // Keep a summary, but never overwrite subsequent manual edits
+                // by applying this payload a second time in preSave.
+                this.props.onChange(JSON.stringify({ ...payload, applied: true }));
             } catch (error) {
+                if (version !== this.readVersion) return;
                 this.setState({
                     error: "Datoteku nije moguće pročitati: " + (error.message || error),
                 });
@@ -130,9 +209,9 @@
                 ),
                 h("span", { className: "md-import-drop-note" }, " ili prevuci datoteku ovdje"),
                 payload && h(
-                    "div",
+                    "details",
                     { className: "md-import-summary" },
-                    h("strong", null, payload.filename),
+                    h("summary", null, payload.filename),
                     h(
                         "dl",
                         null,
@@ -144,7 +223,7 @@
                     h(
                         "p",
                         null,
-                        "Pri spremanju će se uvesti podržani podaci i Markdown tekst. Slugovi i javni URL generiraju se po pravilima arhiva."
+                        "Podaci i tekst su uneseni u obrazac. Možeš ih urediti prije spremanja."
                     ),
                     h(
                         "button",
@@ -153,7 +232,7 @@
                             className: "md-import-clear",
                             onClick: () => this.props.onChange(""),
                         },
-                        "Ukloni datoteku"
+                        "Sakrij sažetak uvoza"
                     )
                 ),
                 this.state.error && h(

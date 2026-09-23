@@ -216,7 +216,7 @@ def main():
     work.add_argument("--type", choices=TYPES, default="short-story")
     work.add_argument("--language", choices=LANGUAGES, default="sr")
     work.add_argument("--script", choices=SCRIPTS, default="latin")
-    work.add_argument("--rights", choices=RIGHTS, default="public-domain")
+    work.add_argument("--rights", choices=RIGHTS, default="unknown")
     work.add_argument("--rights-note", dest="rights_note")
     work.add_argument("--genre", action="append", help="repeatable")
     work.add_argument("--period")

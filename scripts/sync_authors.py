@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 """Normalize author records and work references.
 
-The CMS derives an author's slug from the current author name. If the name is
-corrected later, this script keeps the repository consistent by renaming the
-author file, updating its IDs and permalink, and updating every work that
-references the old author slug.
+An author's ID is permanent once allocated. Correcting a name updates display
+metadata without changing references or public URLs. Legacy filenames are
+aligned with the stored ID, and works are linked to the canonical record.
 
 It also creates a missing author record when a work was saved with `author_name`.
 Existing unrelated author records are never overwritten.
@@ -21,6 +20,10 @@ ROOT = Path(__file__).resolve().parent.parent
 WORKS = ROOT / "_works"
 AUTHORS = ROOT / "_authors"
 ZBIRKE = ROOT / "_zbirke"
+
+
+def safe_identifier(value):
+    return bool(re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]*", value))
 
 
 def split_document(path):
@@ -51,7 +54,10 @@ def rewrite_front_matter(path, updates):
     if not raw:
         raise ValueError("No YAML front matter in %s" % path.relative_to(ROOT))
 
-    rendered = {key: yaml_quote(value) for key, value in updates.items()}
+    rendered = {
+        key: str(value) if isinstance(value, int) and not isinstance(value, bool) else yaml_quote(value)
+        for key, value in updates.items()
+    }
     output = []
     seen = set()
 
@@ -76,6 +82,8 @@ def rewrite_front_matter(path, updates):
 
 
 def create_author(author_id, name):
+    if not safe_identifier(author_id):
+        raise ValueError("Invalid author identifier")
     path = AUTHORS / ("%s.md" % author_id)
     if path.exists():
         return path
@@ -111,9 +119,9 @@ def normalize_authors():
             problems.append("%s: missing author name" % original_path.name)
             continue
 
-        desired_id = slugify(name)
-        if not desired_id:
-            problems.append("%s: could not derive author slug" % original_path.name)
+        desired_id = str(data.get("id") or data.get("archive_id") or original_path.stem).strip()
+        if not safe_identifier(desired_id):
+            problems.append("%s: invalid author ID" % original_path.name)
             continue
 
         old_ids = {
@@ -168,12 +176,21 @@ def normalize_works(aliases, canonical_names):
         if author_id in aliases:
             desired_id = aliases[author_id]
             canonical_name = canonical_names.get(desired_id, author_name)
-        elif author_id and (AUTHORS / ("%s.md" % author_id)).exists():
+        elif safe_identifier(author_id) and (AUTHORS / ("%s.md" % author_id)).exists():
             desired_id = author_id
             author_data = read_front_matter(AUTHORS / ("%s.md" % author_id))
             canonical_name = str(author_data.get("name") or author_name).strip()
         elif author_name:
-            desired_id = slugify(author_name)
+            # A corrected display name may no longer resemble its permanent ID.
+            # Reuse an exact known name before creating another author record.
+            matches = [key for key, name in canonical_names.items()
+                       if name.casefold().strip() == author_name.casefold().strip()]
+            if len(matches) > 1:
+                problems.append("%s: choose an existing author; this name is ambiguous" % work_path.name)
+                continue
+            desired_id = matches[0] if matches else (
+                author_id if safe_identifier(author_id) else slugify(author_name)
+            )
             if not desired_id:
                 problems.append("%s: could not derive author slug" % work_path.name)
                 continue
@@ -222,7 +239,7 @@ def normalize_zbirke(aliases):
             continue
 
         desired_id = aliases.get(author_id, author_id)
-        if not (AUTHORS / ("%s.md" % desired_id)).exists():
+        if not safe_identifier(desired_id) or not (AUTHORS / ("%s.md" % desired_id)).exists():
             problems.append(
                 "%s: collection author %s does not exist"
                 % (zbirka_path.name, desired_id)

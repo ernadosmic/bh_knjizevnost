@@ -319,6 +319,38 @@
 
 /* ---------- Markdown import ---------- */
 
+.author-picker-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.author-picker-actions button {
+  padding: 10px 14px;
+  border: 1px solid #c9ced6;
+  border-radius: 5px;
+  background: #fff;
+  color: #263f3b;
+  cursor: pointer;
+}
+
+.author-picker-actions button[aria-pressed="true"] {
+  background: #263f3b;
+  color: #fff;
+}
+
+.author-picker input[type="text"] {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.editor-field-note {
+  margin: 8px 0 0;
+  color: #5c6370;
+  font-size: 14px;
+}
+
 .md-import-panel {
   width: 100%;
   padding: 16px;
@@ -377,8 +409,9 @@
   border-top: 1px solid #d9dde3;
 }
 
-.md-import-summary > strong {
-  display: block;
+.md-import-summary > summary {
+  cursor: pointer;
+  font-weight: 700;
   overflow-wrap: anywhere;
 }
 

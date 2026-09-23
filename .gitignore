@@ -8,3 +8,5 @@ assets/downloads/pdf/
 assets/downloads/epub/
 archive-manifest.json
 assets/uploads/
+node_modules/
+__pycache__/

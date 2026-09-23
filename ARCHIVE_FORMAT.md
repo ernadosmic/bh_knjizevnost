@@ -35,6 +35,13 @@ A work file starts with YAML front matter between two `---` lines. Required fiel
 
 The Markdown body after the front matter is the complete canonical literary text. Corrections should be committed there so Git preserves the history.
 
+The CMS automatically assigns new works a `D-` prefixed UUID. Legacy and imported
+identifiers such as `PK0001` remain valid. IDs are not derived again when titles
+or author names change. `created_at`, when present, records initial creation in
+UTC and provides a stable ordering for new works appended to a collection.
+Missing collection positions are assigned after the highest explicit position.
+Author and collection IDs likewise remain stable after display-name corrections.
+
 In literary works, a single newline between prose passages starts a new paragraph
 on the website and a line break in PDF/EPUB downloads. On the website, one newline gives a small
 paragraph gap (0.45 em), while two newlines (a blank line) give a larger gap

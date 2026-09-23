@@ -6,15 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="robots" content="noindex, nofollow">
     <title>Biblioteka književnosti · Administracija</title>
-    <link rel="stylesheet" href="./mobile-overrides.css?v=7">
+    <link rel="stylesheet" href="./mobile-overrides.css?v=8">
     <script>window.CMS_MANUAL_INIT = true;</script>
 </head>
 
 <body>
     <script src="https://unpkg.com/decap-cms@3.17.0-beta.0/dist/decap-cms.js"></script>
     <script src="https://unpkg.com/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
-    <script src="./import-md.js"></script>
     <script src="./collection-works.js"></script>
+    <script src="./editor-widgets.js"></script>
+    <script src="./import-md.js?v=3"></script>
     <script src="./site-publish.js"></script>
     <script>
         const { CMS, initCMS: init } = window;
@@ -45,6 +46,17 @@
             const parts = clean(fullName).split(/\s+/).filter(Boolean);
             if (parts.length < 2) return clean(fullName);
             return `${parts[parts.length - 1]}, ${parts.slice(0, -1).join(" ")}`;
+        }
+
+        function newArchiveId(prefix = "D") {
+            // Independent editors can create drafts without sharing a counter.
+            return prefix + "-" + window.crypto.randomUUID();
+        }
+
+        function detectScript(body) {
+            const cyrillic = (body.match(/\p{Script=Cyrillic}/gu) || []).length;
+            const latin = (body.match(/\p{Script=Latin}/gu) || []).length;
+            return cyrillic > latin ? "cyrillic" : latin ? "latin" : "other";
         }
 
         function importedWorkId(filename) {
@@ -84,6 +96,14 @@
             const fm = payload.frontmatter || {};
             const body = typeof payload.body === "string" ? payload.body : "";
 
+            // IDs are hidden from the editor. Preserve an imported archive ID,
+            // while leaving the visible fields (and subsequent edits) alone.
+            if (payload.applied) {
+                const id = clean(fm.id || fm.archive_id || importedWorkId(payload.filename));
+                return collectionName === "works" && !data.get("id") && id
+                    ? data.set("id", id) : data;
+            }
+
             if (collectionName === "works") {
                 data = applyScalarFields(data, fm, [
                     "title",
@@ -105,6 +125,7 @@
 
                 const importedId = clean(fm.id || fm.archive_id || importedWorkId(payload.filename));
                 if (importedId) data = data.set("id", importedId);
+                if (fm.type === "poem") data = data.set("type", "poetry");
 
                 let importedAuthor = clean(fm.author);
                 let importedAuthorName = clean(fm.author_name || fm.new_author);
@@ -118,7 +139,9 @@
                 }
 
                 if (importedAuthor) data = data.set("author", importedAuthor);
-                if (importedAuthorName) data = data.set("author_name", importedAuthorName);
+                if (importedAuthorName) {
+                    data = data.set("author", { id: importedAuthor, name: importedAuthorName });
+                }
 
                 if (Array.isArray(fm.genres)) {
                     data = data.set("genres", fm.genres);
@@ -158,32 +181,43 @@
             name: "preSave",
             handler: ({ entry, collection }) => {
                 let data = entry.get("data");
-                const collectionName = collection && collection.get("name");
+                // The pinned Decap version supplies the collection on entry.
+                const collectionName = (collection && collection.get("name")) || entry.get("collection");
+                // Decap's Duplicate action copies hidden metadata too. A copy
+                // starts a new identity; editing an existing entry preserves it.
+                if (entry.get("newRecord") && data.get("permalink") && !data.get("import_md")) {
+                    ["id", "archive_id", "slug", "permalink", "created_at"].forEach((field) => {
+                        data = data.delete(field);
+                    });
+                }
                 data = applyMarkdownImport(data, collectionName);
 
                 if (collectionName === "works") {
                     const title = clean(data.get("title"));
-                    const id = clean(data.get("id"));
-                    const newAuthor = clean(data.get("new_author"));
-                    let author = clean(data.get("author"));
+                    const id = clean(data.get("id")) || newArchiveId();
+                    const authorValue = data.get("author");
+                    const authorData = authorValue && typeof authorValue === "object"
+                        ? (authorValue.toJS ? authorValue.toJS() : authorValue) : null;
+                    // Support older saved drafts that used a separate new_author field.
+                    const newAuthor = clean(authorData ? authorData.name : data.get("new_author"));
+                    let author = clean(authorData ? authorData.id : authorValue);
                     let slug = clean(data.get("slug"));
 
-                    if (!id) {
-                        throw new Error("Unesi trajni ID djela.");
-                    }
                     if (!title) {
                         throw new Error("Unesi naslov djela.");
                     }
+                    if (!clean(data.get("body"))) throw new Error("Unesi tekst djela.");
 
                     if (!slug) {
-                        slug = slugify(title);
+                        // Distinct works can share a title; they must never share a URL.
+                        slug = `${slugify(title) || "djelo"}-${id.toLowerCase()}`;
                     }
                     if (!slug) {
                         throw new Error("Slug nije moguće generirati iz naslova.");
                     }
 
                     if (newAuthor) {
-                        author = slugify(newAuthor);
+                        author = author || slugify(newAuthor) || newArchiveId("autor");
                         if (!author) {
                             throw new Error("ID autora nije moguće generirati iz imena.");
                         }
@@ -195,8 +229,12 @@
                     }
 
                     return data
+                        .set("id", id)
                         .set("author", author)
                         .delete("new_author")
+                        .set("script", !data.get("script") || data.get("script") === "auto"
+                            ? detectScript(String(data.get("body") || "")) : data.get("script"))
+                        .set("created_at", data.get("created_at") || new Date().toISOString())
                         .set("slug", slug)
                         .set("archive_id", id)
                         .set("permalink", `/djela/${author}/${slug}/`);
@@ -204,7 +242,8 @@
 
                 if (collectionName === "zbirke") {
                     const title = clean(data.get("title"));
-                    const slug = slugify(title);
+                    const slug = clean(data.get("slug") || data.get("id")) || slugify(title) || newArchiveId("zbirka");
+                    const id = clean(data.get("id")) || slug;
 
                     if (!title) {
                         throw new Error("Unesi naslov zbirke.");
@@ -214,15 +253,15 @@
                     }
 
                     return data
-                        .set("id", slug)
-                        .set("archive_id", slug)
+                        .set("id", id)
+                        .set("archive_id", id)
                         .set("slug", slug)
                         .set("permalink", `/zbirke/${slug}/`);
                 }
 
                 if (collectionName === "authors") {
                     const name = clean(data.get("name"));
-                    const id = slugify(name);
+                    const id = clean(data.get("id")) || slugify(name) || newArchiveId("autor");
                     const orderName = sortName(name);
 
                     if (!name) {

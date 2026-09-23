@@ -106,8 +106,9 @@ Inside **ZBIRKE**, open a saved collection and use **Djela u zbirci**:
 
 The work editor opens in a new tab. Save/publish the work to apply its membership;
 opening it alone does not change anything. Set its optional order within the
-collection there too. Assigning an existing work moves it from its previous
-collection. Save a new collection before adding works to it.
+collection only when a specific position is needed; otherwise new works are
+appended automatically during normalization. Moving a work clears its old
+position. Save a new collection before adding works to it.
 
 The dashboard is at https://ernadosmic.github.io/bh_knjizevnost/admin/.
 `admin/config.yml` contains the connected site's public Site ID. Online login
@@ -127,16 +128,44 @@ steps document the setup if the site ever needs to be reconnected.
 5. Commit and push the configuration, wait for the Pages deployment to finish,
    then open the dashboard and select **Login with Turbo**.
 
-Choose **WORKS** to edit an existing entry or create a new one, and **AUTHORS**
-to manage authors. Keep Permanent ID and Archive display ID identical. Choose
-an existing author for each work; create the author first when necessary.
+Choose **DJELA** to create or edit a work, and **AUTORI** to manage biographies.
+For a new work, enter the title, choose an author (or use **Dodaj autora**),
+and write the text. The editor generates its permanent ID and public URL;
+there is no author-specific counter to maintain. Existing and imported IDs
+are preserved. New works with identical titles receive distinct URLs.
+Correcting a title or author name preserves established IDs and links.
+
+Markdown import fills the form immediately so imported values can be reviewed
+and edited before saving. Files without front matter can use their first H1
+heading or filename as the title. Latin/Cyrillic script is detected automatically
+unless explicitly selected. Language and rights remain editorial choices;
+rights default to unknown. Additional metadata follows the text editor.
+
 For precise literary line breaks, use the Markdown editor's **Raw** mode.
-Publishing updates the source files; PDF links update after the build completes.
+Save stores the draft; **OBJAVI STRANICU** releases saved changes together.
+Author records and collection positions are normalized during the build;
+the public pages and downloads update when that build finishes.
 
 Turbo currently requires the beta CMS release. `admin/index.html` pins
 `3.17.0-beta.0` rather than following a moving beta tag. Setup references:
 [getting started](https://decapcms.org/docs/turbo-getting-started/) and
 [connecting a site](https://decapcms.org/docs/turbo-connecting-a-site/).
+
+### Editor regression checks
+
+Node.js 22+ is needed only for editor tests, not for the static site build:
+
+```powershell
+npm ci
+npx playwright install chromium
+npm test
+python scripts/test_editor_sync.py
+npm run test:editor
+```
+
+The browser check loads the pinned CMS and YAML libraries from their CDN and
+uses Decap's in-memory test backend. It does not access or publish to GitHub.
+To use an existing Chromium installation, set `PLAYWRIGHT_CHROMIUM_EXECUTABLE`.
 
 ## Durable archive principle
 
