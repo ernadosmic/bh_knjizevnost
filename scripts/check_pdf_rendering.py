@@ -36,8 +36,14 @@ def main():
         output = Path(directory) / "spacing.pdf"
         source.write_text("".join(rows), encoding="utf-8")
         run_pandoc(source, output, {"title": "Rendering check", "author": ""}, True)
+        poetry_output = Path(directory) / "poetry.pdf"
+        run_pandoc(source, poetry_output, {"title": "Rendering check", "author": "", "type": "poetry"}, True)
         result = subprocess.run(
             ["pdftotext", "-bbox", str(output), "-"],
+            capture_output=True, check=True, encoding="utf-8",
+        )
+        poetry_result = subprocess.run(
+            ["pdftotext", "-bbox", str(poetry_output), "-"],
             capture_output=True, check=True, encoding="utf-8",
         )
 
@@ -80,6 +86,12 @@ def main():
     tight = positions["Row002"] - positions["Row001"]
     assert 8 < tight < 20, "A single Markdown newline must have ordinary line spacing"
     assert abs((positions["Row004"] - positions["Row003"]) - tight) < 0.5
+    poetry_document = ET.fromstring(poetry_result.stdout)
+    poetry_first_row = next(
+        word for word in poetry_document.findall(".//{*}word") if word.text == "Row001"
+    )
+    assert float(poetry_first_row.get("xMin")) - body_margin > 13, \
+        "Poetry's first line after the heading must be indented"
     gap = positions["Row011"] - positions["Row010"]
     assert gap > tight + 8, "A blank Markdown line must add a visible paragraph gap"
     for row in ["Row002", "Row003", "Row004", "Row011", "Row012", "Row013"] + [f"Row{i:03}" for i in range(21, 81)]:

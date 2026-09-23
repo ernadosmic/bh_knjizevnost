@@ -37,13 +37,14 @@ def run_pandoc(input_path: Path, output_path: Path, metadata: dict, pdf: bool) -
         command += ["--metadata", f"lang={metadata['language']}"]
     if pdf:
         command += ["--pdf-engine=xelatex", "-V", "geometry:a4paper", "-V", "mainfont=DejaVu Serif"]
+        after_heading = "\\@afterindenttrue" if metadata.get("type") == "poetry" else "\\@afterindentfalse"
         command += [
             "-V", "indent=true",
             # Hard line breaks stay within a paragraph; only blank source lines
             # start a new paragraph and receive this extra vertical space.
             "-V", r"header-includes=\usepackage{lineno}\modulolinenumbers[5]\leftlinenumbers\renewcommand{\linenumberfont}{\normalfont\tiny\color[gray]{0.55}}\setlength{\linenumbersep}{1em}\setlength{\parindent}{1.5em}\setlength{\parskip}{1.3em}",
-            # Start counting after the title; leave the opening paragraph flush left.
-            "-V", r"include-before=\linenumbers\makeatletter\@afterindentfalse\@afterheading\makeatother",
+            # Start counting after the title; poetry keeps the opening indent.
+            "-V", f"include-before=\\linenumbers\\makeatletter{after_heading}\\@afterheading\\makeatother",
         ]
     subprocess.run(command, input=literal_dashes(input_path.read_text(encoding="utf-8")),
                    text=True, encoding="utf-8", cwd=ROOT, check=True)
